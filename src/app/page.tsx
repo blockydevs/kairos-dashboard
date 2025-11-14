@@ -12,17 +12,7 @@ function CounterComponent() {
   const { data, isLoading, error, mutateCount } = useCounterData();
 
   const handleIncrementAndSave = () => {
-    let base: number | undefined = undefined;
-    if (typeof window !== "undefined") {
-      const raw = window.localStorage.getItem("counter.count");
-      if (raw !== null) {
-        const parsed = Number(raw);
-        if (Number.isFinite(parsed)) base = parsed;
-      }
-    }
-    if (base === undefined) base = data?.count;
-    if (base === undefined) base = count;
-
+    const base = data?.count ?? count;
     increment();
     mutateCount(base + 1);
   };
