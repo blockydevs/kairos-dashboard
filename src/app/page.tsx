@@ -3,6 +3,7 @@
 import ReactQueryProvider from "../providers/ReactQueryProvider";
 import { useCounterStore } from "@/store/dashboardStore";
 import { useCounterData } from "@/hooks/useCounterData";
+import { Button } from "@/components/ui/button";
 
 function CounterComponent() {
   const count = useCounterStore((state) => state.count);
@@ -22,18 +23,18 @@ function CounterComponent() {
       <h1 className="text-4xl font-bold">Count: {count}</h1>
 
       <div className="space-x-4">
-        <button
+        <Button
           onClick={handleIncrementAndSave}
           className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
         >
           Increment and Save
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={decrement}
           className="rounded bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
         >
           Decrement
-        </button>
+        </Button>
       </div>
 
       <div>
