@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Huffy Dashboard
+
+Huffy Dashboard is a dashboard application built with **Next.js**, using **Zustand** for state management, **TanStack React Query** for data fetching and caching, and **shadcn/ui** for UI components.
+
+## Features
+
+- Real-time message updates from HCS (Hedera Consensus Service)
+
+## Environment Variables
+
+Create a `.env` file in the root of the project with the following variables:
+
+```env
+NEXT_PUBLIC_TOPIC_ID="0.0.xxxxx"
+NEXT_PUBLIC_MIRROR_NODE_URL="https://testnet.mirrornode.hedera.com"
+
+HEDERA_OPERATOR_ID="0.0.xxxxx"
+HEDERA_OPERATOR_KEY="302e02010..."
+````
+
+## Testing New HCS Messages
+
+To test the display of a new HCS message by `topicId`, use the following endpoint:
+
+```
+GET http://localhost:3000/api/test/add-new-hcs-topic-msg
+```
+
+This fetches all messages from the **Hedera Mirror Node** and subscribes to any new messages for the given topic, allowing you to see new messages in real-time on the dashboard.
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+2. Install dependencies using **pnpm**:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   ```bash
+   pnpm install
+   ```
+3. Run the development server:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   pnpm dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* `pnpm dev` – Run the development server
+* `pnpm build` – Build the application
+* `pnpm start` – Start the production server
+* `pnpm lint` – Run ESLint
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

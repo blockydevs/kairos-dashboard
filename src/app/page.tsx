@@ -1,55 +1,60 @@
 "use client";
 
-import ReactQueryProvider from "../providers/ReactQueryProvider";
-import { useCounterStore } from "@/store/dashboardStore";
-import { useCounterData } from "@/hooks/useCounterData";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
+import { fetchInitialMessages, subscribeToNewMessages } from "@/services/hcs";
 
-function CounterComponent() {
-  const count = useCounterStore((state) => state.count);
-  const increment = useCounterStore((state) => state.increment);
-  const decrement = useCounterStore((state) => state.decrement);
+function HcsMessages() {
+  const [messages, setMessages] = useState<{ consensusTimestamp: string; message: string }[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data, isLoading, error, mutateCount } = useCounterData();
-
-  const handleIncrementAndSave = () => {
-    const base = data?.count ?? count;
-    increment();
-    mutateCount(base + 1);
-  };
+  useEffect(() => {
+    let unsub: (() => void) | null = null;
+    (async () => {
+      try {
+        const initial = await fetchInitialMessages(25);
+        setMessages(initial);
+        setLoading(false);
+        const sub = subscribeToNewMessages((m) => {
+          setMessages((prev) => [...prev, m]);
+        });
+        unsub = sub.unsubscribe;
+      } catch (e: unknown) {
+        console.error(e);
+        const message = e instanceof Error ? e.message : "Unknown error";
+        setError(message);
+        setLoading(false);
+      }
+    })();
+    return () => {
+      try {
+        unsub?.();
+      } catch {}
+    };
+  }, []);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 font-sans dark:bg-black space-y-4">
-      <h1 className="text-4xl font-bold">Count: {count}</h1>
-
-      <div className="space-x-4">
-        <Button
-          onClick={handleIncrementAndSave}
-          className="rounded bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
-        >
-          Increment and Save
-        </Button>
-        <Button
-          onClick={decrement}
-          className="rounded bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
-        >
-          Decrement
-        </Button>
-      </div>
-
-      <div>
-        {isLoading && <p>Loading data...</p>}
-        {error && <p>Error loading data</p>}
-        {data && <p>Data from server: {JSON.stringify(data)}</p>}
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-start bg-zinc-50 font-sans dark:bg-black p-8 space-y-6">
+      <h1 className="text-3xl font-bold">Hedera Topic Messages</h1>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-600">Error: {error}</p>}
+      {!loading && !error && (
+        <ul className="w-full max-w-3xl space-y-2">
+          {messages.map((m, idx) => (
+            <li key={m.consensusTimestamp + ":" + idx} className="rounded border p-3">
+              <div className="text-xs text-gray-500">{m.consensusTimestamp}</div>
+              <div className="whitespace-pre-wrap break-words">{m.message}</div>
+            </li>
+          ))}
+          {messages.length === 0 && <li>No messages.</li>}
+        </ul>
+      )}
     </div>
   );
 }
 
 export default function Home() {
-  return (
-    <ReactQueryProvider>
-      <CounterComponent />
-    </ReactQueryProvider>
-  );
+  return <HcsMessages />;
 }
