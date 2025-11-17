@@ -30,7 +30,7 @@ function HcsMessages() {
   const [balanceError] = useState<string | null>(null);
   const [tokens, setTokens] = useState<TokenData[]>([]);
   const [page, setPage] = useState<number>(1);
-  const pageSize = 5;
+  const [pageSize, setPageSize] = useState<number>(5);
 
   useEffect(() => {
     let unsub: (() => void) | null = null;
@@ -82,7 +82,6 @@ function HcsMessages() {
         setLoading(false);
       }
     })();
-
 
     const poll = startBalancePolling(
       (bal: string) => setBalance(bal)
@@ -167,19 +166,38 @@ function HcsMessages() {
                 </TableBody>
               </Table>
 
-              <div className="flex justify-end space-x-2 mt-4">
-                <Button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                >
-                  Next
-                </Button>
+              {/* Pagination controls */}
+              <div className="flex justify-between items-center mt-4">
+                <div className="flex items-center space-x-2">
+                  <span>Rows per page:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+                    className="border rounded p-1"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <span>
+                    Page {page} of {totalPages || 1}
+                  </span>
+                  <Button
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
             </>
           )}
