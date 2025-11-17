@@ -49,5 +49,5 @@ export async function fetchTopicMessages(params: {
       consensusTimestamp: m.consensus_timestamp,
       message: decodeBase64ToUtf8(m.message),
     }))
-    .sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+    .sort((a, b) => b.sequenceNumber - a.sequenceNumber);
 }

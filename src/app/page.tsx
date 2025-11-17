@@ -3,8 +3,24 @@
 import React, { useEffect, useState } from "react";
 import { fetchInitialMessages, subscribeToNewMessages } from "@/services/hcs";
 import { startBalancePolling } from "@/services/web3";
-import {getDetailedTokenDataById, solidityAddressToTokenIdString, TokenData} from "@/services/dex/saucerswapApi";
-import {getPairWhitelist} from "@/services/web3/pairWhitelistContract";
+import { getDetailedTokenDataById, solidityAddressToTokenIdString, TokenData } from "@/services/dex/saucerswapApi";
+import { getPairWhitelist } from "@/services/web3/pairWhitelistContract";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 function HcsMessages() {
   const [messages, setMessages] = useState<{ consensusTimestamp: string; message: string }[]>([]);
@@ -13,16 +29,15 @@ function HcsMessages() {
   const [balance, setBalance] = useState<string>("-");
   const [balanceError] = useState<string | null>(null);
   const [tokens, setTokens] = useState<TokenData[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 5;
 
   useEffect(() => {
-    // HCS messages
     let unsub: (() => void) | null = null;
 
     const fetchTokens = async () => {
       try {
         const pairs = await getPairWhitelist();
-        console.log("Fetched pairs:", pairs);
-
         const tokenAddressSet = new Set<string>();
         pairs.forEach(p => {
           tokenAddressSet.add(p.tokenIn);
@@ -43,7 +58,6 @@ function HcsMessages() {
             console.error("Error fetching token data:", e);
           }
         }
-
         setTokens(tokensArr);
       } catch (err) {
         console.error(err);
@@ -56,7 +70,7 @@ function HcsMessages() {
         setMessages(initial);
         setLoading(false);
         const sub = subscribeToNewMessages((m) => {
-          setMessages((prev) => [...prev, m]);
+          setMessages((prev) => [m, ...prev]);
         });
         unsub = sub.unsubscribe;
 
@@ -69,13 +83,11 @@ function HcsMessages() {
       }
     })();
 
-    // Treasury contract balance
+
     const poll = startBalancePolling(
-      (bal: string) => {
-        console.log("balance updated:", bal);
-        setBalance(bal);
-      },
+      (bal: string) => setBalance(bal)
     );
+
     return () => {
       try {
         unsub?.();
@@ -86,44 +98,93 @@ function HcsMessages() {
     };
   }, []);
 
+  const totalPages = Math.ceil(messages.length / pageSize);
+  const paginatedMessages = messages.slice((page - 1) * pageSize, page * pageSize);
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-zinc-50 font-sans dark:bg-black p-8 space-y-6">
-      <h1 className="text-3xl font-bold">Hedera Dashboard</h1>
-      <div className="w-full max-w-3xl">
-        <h2 className="text-2xl font-semibold">Treasury Balance</h2>
-        {balanceError ? (
-          <p className="text-red-600">Error: {balanceError}</p>
-        ) : (
-          <p className="text-lg mt-1">{balance}</p>
-        )}
+    <div className="flex min-h-screen flex-col items-center justify-start bg-zinc-50 dark:bg-black p-8 space-y-6 w-full">
+      <h1 className="text-3xl font-bold w-full max-w-7xl">Hedera Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-7xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>Treasury Balance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {balanceError ? (
+              <p className="text-red-600">Error: {balanceError}</p>
+            ) : (
+              <p className="text-lg">{balance}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>SaucerSwap Tokens</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {tokens.length === 0 && <p>No tokens loaded.</p>}
+            {tokens.map((token) => (
+              <Card key={token.id} className="p-2 flex flex-col items-center justify-center space-y-1">
+                <img src={token.icon} alt={`${token.name} icon`} className="w-10 h-10" />
+                <div className="text-sm font-semibold text-center">{token.symbol}</div>
+                <div className="text-xs text-gray-500 text-center">${token.priceUsd.toFixed(6)}</div>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
       </div>
-      <h2 className="text-2xl font-semibold">Hedera Topic Messages</h2>
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600">Error: {error}</p>}
-      {!loading && !error && (
-        <ul className="w-full max-w-3xl space-y-2">
-          {messages.map((m, idx) => (
-            <li key={m.consensusTimestamp + ":" + idx} className="rounded border p-3">
-              <div className="text-xs text-gray-500">{m.consensusTimestamp}</div>
-              <div className="whitespace-pre-wrap break-words">{m.message}</div>
-            </li>
-          ))}
-          {messages.length === 0 && <li>No messages.</li>}
-        </ul>
-      )}
-      <h2 className="text-2xl font-semibold">SaucerSwap Tokens</h2>
-      {tokens.length === 0 && <p>No tokens loaded.</p>}
-      <ul className="w-full max-w-3xl space-y-4">
-        {tokens.map((token) => (
-          <li key={token.id} className="flex items-center space-x-4 p-4 border rounded bg-white dark:bg-gray-900">
-            <img src={token.icon} alt={`${token.name} icon`} className="w-10 h-10" />
-            <div className="flex-1">
-              <div className="text-lg font-semibold">{token.name} ({token.symbol})</div>
-              <div>Price USD: ${token.priceUsd.toFixed(6)}</div>
-            </div>
-          </li>
-        ))}
-      </ul>
+
+      <Card className="w-full max-w-7xl">
+        <CardHeader>
+          <CardTitle>Hedera Topic Messages</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading && <p>Loading...</p>}
+          {error && <p className="text-red-600">Error: {error}</p>}
+          {!loading && !error && (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Message</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedMessages.map((m, idx) => (
+                    <TableRow key={m.consensusTimestamp + ":" + idx}>
+                      <TableCell className="text-xs text-gray-500">{m.consensusTimestamp}</TableCell>
+                      <TableCell className="whitespace-pre-wrap break-words">{m.message}</TableCell>
+                    </TableRow>
+                  ))}
+                  {paginatedMessages.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={2}>No messages.</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
