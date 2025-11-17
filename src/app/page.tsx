@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { fetchInitialMessages, subscribeToNewMessages } from "@/services/hcs";
 import { startBalancePolling } from "@/services/web3";
+import {getDetailedTokenDataById, solidityAddressToTokenIdString, TokenData} from "@/services/dex/saucerswapApi";
+import {getPairWhitelist} from "@/services/web3/pairWhitelistContract";
 
 function HcsMessages() {
   const [messages, setMessages] = useState<{ consensusTimestamp: string; message: string }[]>([]);
@@ -10,9 +12,44 @@ function HcsMessages() {
   const [error, setError] = useState<string | null>(null);
   const [balance, setBalance] = useState<string>("-");
   const [balanceError] = useState<string | null>(null);
+  const [tokens, setTokens] = useState<TokenData[]>([]);
 
   useEffect(() => {
+    // HCS messages
     let unsub: (() => void) | null = null;
+
+    const fetchTokens = async () => {
+      try {
+        const pairs = await getPairWhitelist();
+        console.log("Fetched pairs:", pairs);
+
+        const tokenAddressSet = new Set<string>();
+        pairs.forEach(p => {
+          tokenAddressSet.add(p.tokenIn);
+          tokenAddressSet.add(p.tokenOut);
+        });
+
+        const tokenAddressList = Array.from(tokenAddressSet);
+        const mockedToken = "0x00000000000000000000000000000000000b2ad5"; // TODO: remove this when we have real tokens
+        tokenAddressList.push(mockedToken);
+
+        const tokensArr: TokenData[] = [];
+        for (const tokenAddress of tokenAddressList) {
+          try {
+            const tokenId = solidityAddressToTokenIdString(tokenAddress);
+            const tokenData = await getDetailedTokenDataById(tokenId);
+            tokensArr.push(tokenData);
+          } catch (e) {
+            console.error("Error fetching token data:", e);
+          }
+        }
+
+        setTokens(tokensArr);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     (async () => {
       try {
         const initial = await fetchInitialMessages(25);
@@ -22,6 +59,8 @@ function HcsMessages() {
           setMessages((prev) => [...prev, m]);
         });
         unsub = sub.unsubscribe;
+
+        await fetchTokens();
       } catch (e: unknown) {
         console.error(e);
         const message = e instanceof Error ? e.message : "Unknown error";
@@ -29,12 +68,13 @@ function HcsMessages() {
         setLoading(false);
       }
     })();
+
+    // Treasury contract balance
     const poll = startBalancePolling(
-      (bal) => {
+      (bal: string) => {
         console.log("balance updated:", bal);
         setBalance(bal);
       },
-      {}
     );
     return () => {
       try {
@@ -71,6 +111,19 @@ function HcsMessages() {
           {messages.length === 0 && <li>No messages.</li>}
         </ul>
       )}
+      <h2 className="text-2xl font-semibold">SaucerSwap Tokens</h2>
+      {tokens.length === 0 && <p>No tokens loaded.</p>}
+      <ul className="w-full max-w-3xl space-y-4">
+        {tokens.map((token) => (
+          <li key={token.id} className="flex items-center space-x-4 p-4 border rounded bg-white dark:bg-gray-900">
+            <img src={token.icon} alt={`${token.name} icon`} className="w-10 h-10" />
+            <div className="flex-1">
+              <div className="text-lg font-semibold">{token.name} ({token.symbol})</div>
+              <div>Price USD: ${token.priceUsd.toFixed(6)}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
