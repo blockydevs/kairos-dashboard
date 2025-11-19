@@ -19,11 +19,15 @@ export interface TokenData {
   twitterHandle: string;
 }
 
-export async function getDetailedTokenDataById(tokenId: string): Promise<TokenData> {
-  const headers = {'x-api-key': SAUCERSWAP_API_KEY};
-  const url = `${SAUCERSWAP_API_URL}/tokens/${tokenId}`;
-  const res = await fetch(url, {headers});
-  return await res.json();
+export async function getDetailedTokenDataById(tokenId: string): Promise<TokenData | undefined> {
+  try {
+    const headers = {'x-api-key': SAUCERSWAP_API_KEY};
+    const url = `${SAUCERSWAP_API_URL}/tokens/${tokenId}`;
+    const res = await fetch(url, {headers});
+    return await res.json();
+  } catch (e){
+    console.error("Error fetching token data:", e);
+  }
 }
 
 export const solidityAddressToTokenIdString = (address: string): string => {

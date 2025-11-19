@@ -17,15 +17,20 @@ export async function fetchInitialMessages(limit = 25): Promise<DecodedMessage[]
   return fetchTopicMessages({ mirrorNodeUrl, topicId, limit });
 }
 
-export function subscribeToNewMessages(onMessage: (m: HcsMessage) => void): HcsSubscription {
+export function subscribeToNewMessages(onMessage: (m: DecodedMessage) => void): HcsSubscription {
   const startTimeSeconds = Math.floor(Date.now() / 1000);
   const url = `/api/hcs/stream?startTimeSeconds=${encodeURIComponent(startTimeSeconds)}`;
   const es = new EventSource(url);
 
   es.onmessage = (evt) => {
     try {
-      const data = JSON.parse(evt.data) as HcsMessage;
-      onMessage(data);
+      const raw = JSON.parse(evt.data) as HcsMessage;
+      const decoded: DecodedMessage = {
+        message: raw.message,
+        consensusTimestamp: raw.consensusTimestamp,
+        sequenceNumber: raw.sequenceNumber,
+      };
+      onMessage(decoded);
     } catch (e) {
       console.error("Error parsing SSE message:", e);
     }

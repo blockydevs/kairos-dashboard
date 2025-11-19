@@ -20,6 +20,14 @@ function createClient(mirrorNodeUrl: string): Client {
   return Client.forMainnet();
 }
 
+function randomAddress() {
+  const collection = [
+    "0x0000000000000000000000000000000000003ad2",
+    "0x0000000000000000000000000000000000001549"
+  ]
+  return collection[Math.floor(Math.random() * collection.length)];
+}
+
 export async function GET() {
   try {
     const operatorId = requireEnv(process.env.HEDERA_OPERATOR_ID, "HEDERA_OPERATOR_ID");
@@ -33,19 +41,47 @@ export async function GET() {
     );
 
     const topicId = TopicId.fromString(topicIdStr);
-    const randomMsg = `Hello Hedera ${Math.random()}`;
+
+    const types = ["BuybackExecuted", "SwapExecuted", "Burned"] as const;
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    let eventPayload: Record<string, any> = { type, timestamp: Math.floor(Date.now() / 1000) };
+
+    if (type === "BuybackExecuted") {
+      eventPayload = {
+        ...eventPayload,
+        tokenIn: randomAddress(),
+        amountIn: Math.floor(Math.random() * 1000),
+        htkReceived: Math.floor(Math.random() * 500),
+        initiator: randomAddress(),
+      };
+    } else if (type === "SwapExecuted") {
+      eventPayload = {
+        ...eventPayload,
+        tokenIn: randomAddress(),
+        tokenOut: randomAddress(),
+        amountIn: Math.floor(Math.random() * 1000),
+        amountOut: Math.floor(Math.random() * 1000),
+        initiator: randomAddress(),
+      };
+    } else if (type === "Burned") {
+      eventPayload = {
+        ...eventPayload,
+        amount: Math.floor(Math.random() * 1000),
+        initiator: randomAddress(),
+      };
+    }
+
+    const eventMessage = JSON.stringify(eventPayload);
 
     await new TopicMessageSubmitTransaction({
       topicId,
-      message: randomMsg,
+      message: eventMessage,
     }).execute(client);
 
-    return Response.json({ ok: true, topicId: topicId.toString(), message: randomMsg });
+    return Response.json({ ok: true, topicId: topicId.toString(), event: eventPayload });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Failed to submit HCS message";
-    return Response.json(
-      { ok: false, error: message },
-      { status: 500 }
-    );
+    return Response.json({ ok: false, error: message }, { status: 500 });
   }
 }

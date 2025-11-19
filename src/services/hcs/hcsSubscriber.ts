@@ -3,6 +3,7 @@ import { Client, PrivateKey, AccountId, TopicMessageQuery } from "@hashgraph/sdk
 export interface HcsMessage {
   consensusTimestamp: string;
   message: string;
+  sequenceNumber: number;
 }
 
 export interface HcsSubscription {
@@ -41,7 +42,11 @@ export function subscribeToHcs(params: {
     (m) => {
       const decoder = new TextDecoder();
       const utf8 = decoder.decode(m.contents);
-      onMessage({ consensusTimestamp: m.consensusTimestamp.toString(), message: utf8 });
+      onMessage({
+        consensusTimestamp: m.consensusTimestamp.toString(),
+        message: utf8,
+        sequenceNumber: m.sequenceNumber
+      });
     }
   );
 
