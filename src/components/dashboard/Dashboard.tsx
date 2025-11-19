@@ -68,7 +68,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-zinc-50 dark:bg-black p-8 space-y-6 w-full">
-      <StatsCards balance={totalUsd} />
+      <StatsCards balance={totalUsd} cagr={9.32} />
 
       <div className="grid grid-cols-4 gap-4 w-full max-w-7xl">
         <TreasuryPie />

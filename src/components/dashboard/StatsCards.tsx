@@ -1,6 +1,10 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
-export default function StatsCards({ balance }: { balance: string | number }) {
+export default function StatsCards({ balance, cagr }: { balance: string | number; cagr: number }) {
+  const isPositive = cagr >= 0;
+  const colorClass = isPositive ? "text-green-500" : "text-red-500";
+  const sign = isPositive ? "+" : "";
+
   return (
     <div className="grid grid-cols-3 gap-4 w-full max-w-7xl">
       <Card>
@@ -19,7 +23,9 @@ export default function StatsCards({ balance }: { balance: string | number }) {
           <CardDescription>Compound Annual Growth Rate</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <p className="text-xl font-semibold">9.32%</p>
+          <p className={`text-xl font-semibold ${colorClass}`}>
+            {sign}{cagr.toFixed(2)}%
+          </p>
         </CardContent>
       </Card>
 
