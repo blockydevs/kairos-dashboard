@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, Tooltip, PieLabelRenderProps } from "recharts";
 import { useDashboardStore } from "@/store/dashboardStore";
@@ -43,7 +44,7 @@ const EMPTY_DATA: PortfolioEntry[] = [
   },
 ];
 
-export default function TreasuryPie() {
+function TreasuryPie() {
   const portfolioBreakdown = useDashboardStore((state) => state.portfolioBreakdown);
   const hasData = portfolioBreakdown.length > 0;
   const dataToDisplay = hasData ? portfolioBreakdown : EMPTY_DATA;
@@ -120,3 +121,5 @@ export default function TreasuryPie() {
     </Card>
   );
 }
+
+export default React.memo(TreasuryPie);

@@ -73,8 +73,9 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   },
 
   updateBalances: async provider => {
-    const { tokenAddresses, tokens } = get();
-    const balances: Record<string, number> = {};
+    const { tokenAddresses, tokens, balances: currentBalances } = get();
+    const newBalances: Record<string, number> = {};
+    let changed = false;
 
     for (const addr of tokenAddresses) {
       const tokenId = solidityAddressToTokenIdString(addr);
@@ -82,15 +83,24 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       if (!t) continue;
 
       const rawBal = await getBalance(provider, { tokenAddress: addr });
-      balances[t.id] = Number(rawBal);
+      const val = Number(rawBal);
+      newBalances[t.id] = val;
+
+      if (currentBalances[t.id] !== val) {
+        changed = true;
+      }
     }
 
-    set({ balances });
+    if (!changed && Object.keys(currentBalances).length === Object.keys(newBalances).length) {
+      return;
+    }
+
+    set({ balances: newBalances });
     get().refreshPortfolio();
   },
 
   refreshPortfolio: () => {
-    const { tokens, balances, tokenColors } = get();
+    const { tokens, balances, tokenColors, portfolioBreakdown: currentPortfolio } = get();
 
     const portfolio = tokens.map(t => {
       const bal = balances[t.id] ?? 0;
@@ -104,6 +114,10 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         color: tokenColors[t.id] ?? "#e0e0e0"
       };
     });
+
+    if (JSON.stringify(portfolio) === JSON.stringify(currentPortfolio)) {
+      return;
+    }
 
     set({ portfolioBreakdown: portfolio });
   },
@@ -121,5 +135,5 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     set({ stopPolling: () => poll.stop() });
   },
 
-  stopPolling: () => {}
+  stopPolling: () => { }
 }));
