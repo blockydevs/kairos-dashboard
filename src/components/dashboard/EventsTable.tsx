@@ -66,7 +66,7 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
   const [tokenInSymbol, setTokenInSymbol] = useState<string | null>(null);
   const [tokenOutSymbol, setTokenOutSymbol] = useState<string | null>(null);
   const eventType = useMemo(() => mapEventType(ev), [ev]);
-  const mockTxHash = "0x1234567890abcdef1234567890abcdef12345678";
+  const mockTxHash = "1763559507.957145000";
 
   useEffect(() => {
     if (ev.tokenIn) {
@@ -95,7 +95,7 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
       <TableCell className="text-center">
         {ev.tokenIn ? (
           <a
-            href={`https://hashscan.io/mainnet/token/${ev.tokenIn}`}
+            href={`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/token/${ev.tokenIn}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"
@@ -109,7 +109,7 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
       <TableCell className="text-center">
         {ev.tokenOut ? (
           <a
-            href={`https://hashscan.io/mainnet/token/${ev.tokenOut}`}
+            href={`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/token/${ev.tokenOut}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"
@@ -128,7 +128,7 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => window.open(`https://hashscan.io/tx/${mockTxHash}`, "_blank")}
+          onClick={() => window.open(`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/transaction/${mockTxHash}`, "_blank")}
         >
           View
         </Button>
