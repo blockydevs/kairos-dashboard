@@ -29,7 +29,7 @@ export default function StatsCards({ balance, cagr, isLoading, isError }: { bala
           </div>
         </CardHeader>
         <CardContent className="relative">
-          <div className="text-4xl font-bold mb-2 tracking-tight text-foreground drop-shadow-sm">
+          <div className="text-4xl font-bold mb-2 tracking-tight drop-shadow-sm">
             {isLoading ? (
               <div className="flex items-center justify-center ">
                 <Loader />
@@ -37,12 +37,14 @@ export default function StatsCards({ balance, cagr, isLoading, isError }: { bala
             ) : isError ? (
               <div className="text-muted-foreground flex items-center justify-center text-sm">Cannot load data</div>
             ) : (
-              <>
-                <>${typeof balance === 'number' ? balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : balance}</>
-                <p className="text-xs text-muted-foreground font-medium">Total balance</p>
-              </>
+              <span className="bg-gradient-to-r from-blue-600 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+                ${typeof balance === 'number' ? balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : balance}
+              </span>
             )}
           </div>
+          { !isLoading && !isError && (
+            <p className="text-xs text-muted-foreground font-medium">Total balance</p>
+          )}
         </CardContent>
       </Card>
 
