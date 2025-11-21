@@ -87,10 +87,10 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
   }, [ev.tokenOut]);
 
   return (
-    <TableRow key={ev.timestamp + ":" + idx} className="text-xs text-black-500">
-      <TableCell className="text-xs text-gray-500">{formatTimestamp(ev.timestamp)}</TableCell>
+    <TableRow key={ev.timestamp + ":" + idx} className="h-14">
+      <TableCell className="text-sm text-muted-foreground">{formatTimestamp(ev.timestamp)}</TableCell>
       <TableCell className="text-center">
-        <Badge variant={eventType.color}>{eventType.label}</Badge>
+        <Badge variant={eventType.color} className="font-medium">{eventType.label}</Badge>
       </TableCell>
       <TableCell className="text-center">
         {ev.tokenIn ? (
@@ -98,12 +98,12 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
             href={`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/token/${ev.tokenIn}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:underline"
+            className="hover:underline text-sm font-medium text-primary"
           >
             {tokenInSymbol}
           </a>
         ) : (
-          "-"
+          <span className="text-muted-foreground">-</span>
         )}
       </TableCell>
       <TableCell className="text-center">
@@ -112,23 +112,24 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
             href={`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/token/${ev.tokenOut}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:underline"
+            className="hover:underline text-sm font-medium text-primary"
           >
             {tokenOutSymbol}
           </a>
         ) : (
-          "-"
+          <span className="text-muted-foreground">-</span>
         )}
       </TableCell>
-      <TableCell className="text-center">{ev.amountIn ?? "-"}</TableCell>
-      <TableCell className="text-center">{ev.amountOut ?? "-"}</TableCell>
-      <TableCell className="text-center">{ev.htkReceived ?? "-"}</TableCell>
-      <TableCell className="text-center">{ev.amount ?? "-"}</TableCell>
+      <TableCell className="text-center text-sm">{ev.amountIn ?? <span className="text-muted-foreground">-</span>}</TableCell>
+      <TableCell className="text-center text-sm">{ev.amountOut ?? <span className="text-muted-foreground">-</span>}</TableCell>
+      <TableCell className="text-center text-sm">{ev.htkReceived ?? <span className="text-muted-foreground">-</span>}</TableCell>
+      <TableCell className="text-center text-sm">{ev.amount ?? <span className="text-muted-foreground">-</span>}</TableCell>
       <TableCell>
         <Button
-          variant="outline"
+          variant="gradient"
           size="sm"
           onClick={() => window.open(`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/transaction/${mockTxHash}`, "_blank")}
+          className="h-8"
         >
           View
         </Button>
@@ -139,37 +140,41 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
 
 export default function EventsTable({ rows, page, totalPages, pageSize, setPage, setPageSize }: EventsTableProps) {
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Time</TableHead>
-            <TableHead className="text-center">Type</TableHead>
-            <TableHead className="text-center">Token In</TableHead>
-            <TableHead className="text-center">Token Out</TableHead>
-            <TableHead className="text-center">Amount In</TableHead>
-            <TableHead className="text-center">Amount Out</TableHead>
-            <TableHead className="text-center">HTK Received</TableHead>
-            <TableHead className="text-center">Amount Burned</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {rows.map((ev, idx) => (
-            <EventRow key={ev.timestamp + ":" + idx} ev={ev} idx={idx} />
-          ))}
-
-          {rows.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={9}>No events.</TableCell>
+    <div className="space-y-4">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="h-12 font-semibold">Time</TableHead>
+              <TableHead className="text-center h-12 font-semibold">Type</TableHead>
+              <TableHead className="text-center h-12 font-semibold">Token In</TableHead>
+              <TableHead className="text-center h-12 font-semibold">Token Out</TableHead>
+              <TableHead className="text-center h-12 font-semibold">Amount In</TableHead>
+              <TableHead className="text-center h-12 font-semibold">Amount Out</TableHead>
+              <TableHead className="text-center h-12 font-semibold">HTK Received</TableHead>
+              <TableHead className="text-center h-12 font-semibold">Amount Burned</TableHead>
+              <TableHead className="w-[100px] h-12"></TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
 
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center space-x-2">
+          <TableBody>
+            {rows.map((ev, idx) => (
+              <EventRow key={ev.timestamp + ":" + idx} ev={ev} idx={idx} />
+            ))}
+
+            {rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                  No events found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>Rows per page:</span>
           <Select
             value={String(pageSize)}
@@ -178,7 +183,7 @@ export default function EventsTable({ rows, page, totalPages, pageSize, setPage,
               setPage(1);
             }}
           >
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger className="w-[100px] h-9">
               <SelectValue placeholder="Rows" />
             </SelectTrigger>
             <SelectContent>
@@ -199,6 +204,7 @@ export default function EventsTable({ rows, page, totalPages, pageSize, setPage,
                   if (page > 1) setPage(page - 1);
                 }}
                 className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                aria-disabled={page === 1}
               />
             </PaginationItem>
 
@@ -262,11 +268,12 @@ export default function EventsTable({ rows, page, totalPages, pageSize, setPage,
                   if (page < totalPages) setPage(page + 1);
                 }}
                 className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                aria-disabled={page === totalPages}
               />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
       </div>
-    </>
+    </div>
   );
 }
