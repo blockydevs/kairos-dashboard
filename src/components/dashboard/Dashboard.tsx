@@ -73,8 +73,8 @@ export default function Dashboard() {
 
   return (
     <div className="bg-zinc-50 dark:bg-black">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-7xl">
-        <div className="space-y-6 lg:space-y-8">
+      <div className="container mx-auto px-2 sm:px-2 lg:px-2 2xl:px-6 py-6 lg:py-8 max-w-8xl">
+        <div className="space-y-4 lg:space-y-4">
      
          <div className="mb-10">
            <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-gradient">
@@ -84,7 +84,7 @@ export default function Dashboard() {
 
           <StatsCards balance={totalUsd} cagr={9.32} isLoading={isLoadingDashboardStore} isError={!!isErrorDashboardStore} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-1">
               <TreasuryPie />
             </div>
