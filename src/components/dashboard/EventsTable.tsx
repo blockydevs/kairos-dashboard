@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/pagination"
 
 interface Event {
+  consensusTimestamp?: string;
   timestamp: number;
   type: string;
   tokenIn?: string;
@@ -43,7 +44,7 @@ interface EventsTableProps {
 function mapEventType(ev: Event): { label: string; color: "default" | "destructive" | "outline" | "secondary" | "success" | "error" | "warning" } {
   switch (ev.type) {
     case "SwapExecuted":
-      if ((ev.amountOut ?? 0) > (ev.amountIn ?? 0)) {
+      if ((Number(ev.amountOut) ?? 0) > (Number(ev.amountIn) ?? 0)) {
         return { label: "BUY", color: "success" };
       } else {
         return { label: "SELL", color: "error" };
@@ -66,7 +67,6 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
   const [tokenInSymbol, setTokenInSymbol] = useState<string | null>(null);
   const [tokenOutSymbol, setTokenOutSymbol] = useState<string | null>(null);
   const eventType = useMemo(() => mapEventType(ev), [ev]);
-  const mockTxHash = "1763559507.957145000";
 
   useEffect(() => {
     if (ev.tokenIn) {
@@ -128,7 +128,7 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
         <Button
           variant="gradient"
           size="sm"
-          onClick={() => window.open(`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/transaction/${mockTxHash}`, "_blank")}
+          onClick={() => window.open(`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/transaction/${ev.consensusTimestamp}`, "_blank")}
           className="h-8"
         >
           View

@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { cn } from "@/lib/utils";
 import { Activity } from "lucide-react";
 import { Loader } from "@/components/ui/loader";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const [messages, setMessages] = useState<DecodedMessage[]>([]);
@@ -61,6 +62,7 @@ export default function Dashboard() {
         const message = e instanceof Error ? e.message : "Unknown error";
         setError(message);
         setLoading(false);
+        toast.error("Failed to fetch Mirror Node data", { id: "mirror-node-error" });
       }
     })();
 
@@ -75,12 +77,12 @@ export default function Dashboard() {
     <div className="bg-zinc-50 dark:bg-black">
       <div className="container mx-auto px-2 sm:px-2 lg:px-2 2xl:px-6 py-6 lg:py-8 max-w-8xl">
         <div className="space-y-4 lg:space-y-4">
-     
-         <div className="mb-10">
-           <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-gradient">
-             Dashboard
-           </h1>
-         </div>
+
+          <div className="mb-10">
+            <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-gradient">
+              Dashboard
+            </h1>
+          </div>
 
           <StatsCards balance={totalUsd} cagr={9.32} isLoading={isLoadingDashboardStore} isError={!!isErrorDashboardStore} />
 
@@ -93,7 +95,7 @@ export default function Dashboard() {
               "lg:col-span-3 relative overflow-hidden shadow-card hover:shadow-elegant transition-all duration-500 border-2 border-border/50"
             )}>
               <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-3xl rounded-full bg-indigo-500" />
-              
+
               <CardHeader className="pb-4 relative">
                 <div className="flex items-start justify-between">
                   <div>

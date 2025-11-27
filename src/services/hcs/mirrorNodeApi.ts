@@ -34,9 +34,7 @@ export async function fetchTopicMessages(params: {
 }): Promise<DecodedMessage[]> {
   const { mirrorNodeUrl, topicId, limit = 25 } = params;
   const base = mirrorNodeUrl.replace(/\/$/, "");
-  const url = `${base}/api/v1/topics/${topicId}/messages?limit=${encodeURIComponent(
-    String(limit)
-  )}`;
+  const url = `${base}/api/v1/topics/${topicId}/messages?limit=${encodeURIComponent(String(limit))}&order=desc`;
 
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
@@ -49,5 +47,4 @@ export async function fetchTopicMessages(params: {
       consensusTimestamp: m.consensus_timestamp,
       message: decodeBase64ToUtf8(m.message),
     }))
-    .sort((a, b) => b.sequenceNumber - a.sequenceNumber);
 }

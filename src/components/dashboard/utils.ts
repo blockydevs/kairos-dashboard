@@ -23,6 +23,7 @@ export const parseMessage = (msg: MessageData) => {
   try {
     const parsed = JSON.parse(msg.message);
     return {
+      consensusTimestamp: msg.consensusTimestamp,
       type: parsed.type,
       timestamp: parsed.timestamp ?? Number(msg.consensusTimestamp),
       initiator: parsed.initiator,

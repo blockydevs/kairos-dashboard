@@ -1,6 +1,8 @@
 import { fetchTopicMessages, type DecodedMessage } from "./mirrorNodeApi";
 import type { HcsMessage, HcsSubscription } from "./hcsSubscriber";
 
+import { toast } from "sonner";
+
 function requireEnv(value: string | undefined, name: string): string {
   if (!value) throw new Error(`Missing env: ${name}`);
   return value;
@@ -24,7 +26,12 @@ export function subscribeToNewMessages(onMessage: (m: DecodedMessage) => void): 
 
   es.onmessage = (evt) => {
     try {
-      const raw = JSON.parse(evt.data) as HcsMessage;
+      const raw = JSON.parse(evt.data);
+      if (raw.error) {
+        toast.error(`Mirror Node error: ${raw.error}`, { id: "mirror-node-sse-error" });
+        return;
+      }
+
       const decoded: DecodedMessage = {
         message: raw.message,
         consensusTimestamp: raw.consensusTimestamp,
@@ -38,6 +45,7 @@ export function subscribeToNewMessages(onMessage: (m: DecodedMessage) => void): 
 
   es.onerror = () => {
     console.error("SSE connection error");
+    toast.error("Mirror Node connection error", { id: "mirror-node-sse-error" });
   };
 
   return {
