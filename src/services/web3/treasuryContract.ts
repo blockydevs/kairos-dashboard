@@ -36,7 +36,7 @@ export async function getBalance(
   const contract = new ethers.Contract(contractAddress, TreasuryAbi.abi, providerOrSigner);
   const result: ethers.BigNumber = await contract.getBalance(tokenAddress);
 
-  return result.toString() == "0" ? "1234" : result.toString();
+  return result.toString();
 }
 
 export function startBalancePolling(

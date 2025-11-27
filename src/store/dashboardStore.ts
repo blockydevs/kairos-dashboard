@@ -58,7 +58,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         tokens.push(t);
 
         const rawBal = await getBalance(provider, { tokenAddress: addr });
-        balances[t.id] = Number(rawBal);
+        balances[t.id] = Number(rawBal) / 10 ** t.decimals;
 
         const res = await fetch(`/api/utils/get-dominant-color-from-img-src?imgUrl=${encodeURIComponent(t.icon)}`);
         const json = await res.json();
@@ -83,7 +83,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       if (!t) continue;
 
       const rawBal = await getBalance(provider, { tokenAddress: addr });
-      const val = Number(rawBal);
+      const val = Number(rawBal) / 10 ** t.decimals;
       newBalances[t.id] = val;
 
       if (currentBalances[t.id] !== val) {
