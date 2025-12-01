@@ -16,11 +16,23 @@ export async function GET(req: NextRequest) {
     ? Number.parseInt(startTimeSecondsParam, 10)
     : Math.floor(Date.now() / 1000);
 
-  const operatorId = requireEnv(process.env.HEDERA_OPERATOR_ID, "HEDERA_OPERATOR_ID");
-  const operatorKey = requireEnv(process.env.HEDERA_OPERATOR_KEY, "HEDERA_OPERATOR_KEY");
+  const operatorId = requireEnv(
+    process.env.HEDERA_OPERATOR_ID,
+    "HEDERA_OPERATOR_ID",
+  );
+  const operatorKey = requireEnv(
+    process.env.HEDERA_OPERATOR_KEY,
+    "HEDERA_OPERATOR_KEY",
+  );
 
-  const mirrorNodeUrl = requireEnv(process.env.NEXT_PUBLIC_MIRROR_NODE_URL, "NEXT_PUBLIC_MIRROR_NODE_URL");
-  const topicId = requireEnv(process.env.NEXT_PUBLIC_TOPIC_ID, "NEXT_PUBLIC_TOPIC_ID");
+  const mirrorNodeUrl = requireEnv(
+    process.env.NEXT_PUBLIC_MIRROR_NODE_URL,
+    "NEXT_PUBLIC_MIRROR_NODE_URL",
+  );
+  const topicId = requireEnv(
+    process.env.NEXT_PUBLIC_TOPIC_ID,
+    "NEXT_PUBLIC_TOPIC_ID",
+  );
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -45,7 +57,9 @@ export async function GET(req: NextRequest) {
           operatorId,
           operatorKey,
           topicId,
-          startTimeSeconds: Number.isFinite(startTimeSeconds) ? startTimeSeconds : undefined,
+          startTimeSeconds: Number.isFinite(startTimeSeconds)
+            ? startTimeSeconds
+            : undefined,
           onMessage: (m: HcsMessage) => {
             try {
               sendSse(m);
@@ -72,8 +86,7 @@ export async function GET(req: NextRequest) {
 
       req.signal?.addEventListener?.("abort", abort);
     },
-    cancel() {
-    },
+    cancel() {},
   });
 
   return new Response(stream, {

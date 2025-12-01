@@ -16,7 +16,7 @@ NEXT_PUBLIC_MIRROR_NODE_URL="https://testnet.mirrornode.hedera.com"
 
 HEDERA_OPERATOR_ID="0.0.xxxxx"
 HEDERA_OPERATOR_KEY="302e02010..."
-````
+```
 
 ## Testing New HCS Messages
 
@@ -36,19 +36,21 @@ This fetches all messages from the **Hedera Mirror Node** and subscribes to any 
    ```bash
    pnpm install
    ```
+
 3. Run the development server:
 
    ```bash
    pnpm dev
    ```
+
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Scripts
 
-* `pnpm dev` – Run the development server
-* `pnpm build` – Build the application
-* `pnpm start` – Start the production server
-* `pnpm lint` – Run ESLint
+- `pnpm dev` – Run the development server
+- `pnpm build` – Build the application
+- `pnpm start` – Start the production server
+- `pnpm lint` – Run ESLint
 
 ## License
 

@@ -1,11 +1,18 @@
-import {getDetailedTokenDataById, solidityAddressToTokenIdString} from "@/services/dex/saucerswapApi";
+import {
+  getDetailedTokenDataById,
+  solidityAddressToTokenIdString,
+} from "@/services/dex/saucerswapApi";
 
 interface MessageData {
   message: string;
   consensusTimestamp: string;
 }
 
-export function shortenAddress(address: string, startLength = 6, endLength = 4) {
+export function shortenAddress(
+  address: string,
+  startLength = 6,
+  endLength = 4,
+) {
   const addr = address.trim();
   if (addr.length <= startLength + endLength) return addr;
   const start = addr.slice(0, startLength);
@@ -13,17 +20,20 @@ export function shortenAddress(address: string, startLength = 6, endLength = 4) 
   return `${start}...${end}`;
 }
 
-export async function getTokenSymbol(tokenAddress: string) {
+export async function getTokenDetails(tokenAddress: string) {
   const tokenId = solidityAddressToTokenIdString(tokenAddress);
   const tokenData = await getDetailedTokenDataById(tokenId);
-  return tokenData ? tokenData.symbol : "-";
+  return {
+    symbol: tokenData ? tokenData.symbol : "-",
+    decimals: tokenData ? tokenData.decimals : 0,
+  };
 }
 
 export const parseMessage = (msg: MessageData) => {
   try {
     const parsed = JSON.parse(msg.message);
     return {
-      consensusTimestamp: msg.consensusTimestamp,
+      txHash: parsed.txHash,
       type: parsed.type,
       timestamp: parsed.timestamp ?? Number(msg.consensusTimestamp),
       initiator: parsed.initiator,

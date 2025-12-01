@@ -1,7 +1,14 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatTimestamp, getTokenSymbol } from "./utils";
+import { formatTimestamp, getTokenDetails } from "./utils";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Select,
@@ -9,7 +16,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -18,10 +25,10 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
 
 interface Event {
-  consensusTimestamp?: string;
+  txHash?: string;
   timestamp: number;
   type: string;
   tokenIn?: string;
@@ -41,7 +48,27 @@ interface EventsTableProps {
   setPageSize: (size: number) => void;
 }
 
-function mapEventType(ev: Event): { label: string; color: "default" | "destructive" | "outline" | "secondary" | "success" | "error" | "warning" } {
+function formatAmount(
+  amount: string | number | undefined,
+  decimals: number | null,
+) {
+  if (amount === undefined || amount === null || decimals === null) return "-";
+  const value = Number(amount) / 10 ** decimals;
+  if (isNaN(value)) return "-";
+  return value.toFixed(4);
+}
+
+function mapEventType(ev: Event): {
+  label: string;
+  color:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "success"
+    | "error"
+    | "warning";
+} {
   switch (ev.type) {
     case "SwapExecuted":
       if ((Number(ev.amountOut) ?? 0) > (Number(ev.amountIn) ?? 0)) {
@@ -65,32 +92,44 @@ interface EventRowProps {
 
 const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
   const [tokenInSymbol, setTokenInSymbol] = useState<string | null>(null);
+  const [tokenInDecimals, setTokenInDecimals] = useState<number | null>(1);
   const [tokenOutSymbol, setTokenOutSymbol] = useState<string | null>(null);
+  const [tokenOutDecimals, setTokenOutDecimals] = useState<number | null>(1);
   const eventType = useMemo(() => mapEventType(ev), [ev]);
 
   useEffect(() => {
     if (ev.tokenIn) {
-      setTokenInSymbol('...');
-      getTokenSymbol(ev.tokenIn).then(setTokenInSymbol);
+      setTokenInSymbol("...");
+      getTokenDetails(ev.tokenIn).then((t) => {
+        setTokenInSymbol(t.symbol);
+        setTokenInDecimals(t.decimals);
+      });
     } else {
-      setTokenInSymbol('-');
+      setTokenInSymbol("-");
     }
   }, [ev.tokenIn]);
 
   useEffect(() => {
     if (ev.tokenOut) {
-      setTokenOutSymbol('...');
-      getTokenSymbol(ev.tokenOut).then(setTokenOutSymbol);
+      setTokenOutSymbol("...");
+      getTokenDetails(ev.tokenOut).then((t) => {
+        setTokenOutSymbol(t.symbol);
+        setTokenOutDecimals(t.decimals);
+      });
     } else {
-      setTokenOutSymbol('-');
+      setTokenOutSymbol("-");
     }
   }, [ev.tokenOut]);
 
   return (
     <TableRow key={ev.timestamp + ":" + idx} className="h-14">
-      <TableCell className="text-sm text-muted-foreground">{formatTimestamp(ev.timestamp)}</TableCell>
+      <TableCell className="text-sm text-muted-foreground">
+        {formatTimestamp(ev.timestamp)}
+      </TableCell>
       <TableCell className="text-center">
-        <Badge variant={eventType.color} className="font-medium">{eventType.label}</Badge>
+        <Badge variant={eventType.color} className="font-medium">
+          {eventType.label}
+        </Badge>
       </TableCell>
       <TableCell className="text-center">
         {ev.tokenIn ? (
@@ -120,15 +159,28 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
           <span className="text-muted-foreground">-</span>
         )}
       </TableCell>
-      <TableCell className="text-center text-sm">{ev.amountIn ?? <span className="text-muted-foreground">-</span>}</TableCell>
-      <TableCell className="text-center text-sm">{ev.amountOut ?? <span className="text-muted-foreground">-</span>}</TableCell>
-      <TableCell className="text-center text-sm">{ev.htkReceived ?? <span className="text-muted-foreground">-</span>}</TableCell>
-      <TableCell className="text-center text-sm">{ev.amount ?? <span className="text-muted-foreground">-</span>}</TableCell>
+      <TableCell className="text-center text-sm">
+        {formatAmount(ev.amountIn, tokenInDecimals)}
+      </TableCell>
+      <TableCell className="text-center text-sm">
+        {formatAmount(ev.amountOut, tokenOutDecimals)}
+      </TableCell>{" "}
+      <TableCell className="text-center text-sm">
+        {ev.htkReceived ?? <span className="text-muted-foreground">-</span>}
+      </TableCell>
+      <TableCell className="text-center text-sm">
+        {ev.amount ?? <span className="text-muted-foreground">-</span>}
+      </TableCell>
       <TableCell>
         <Button
           variant="gradient"
           size="sm"
-          onClick={() => window.open(`${process.env.NEXT_PUBLIC_HASHSCAN_URL}/transaction/${ev.consensusTimestamp}`, "_blank")}
+          onClick={() =>
+            window.open(
+              `${process.env.NEXT_PUBLIC_HASHSCAN_URL}/transaction/${ev.txHash}`,
+              "_blank",
+            )
+          }
           className="h-8"
         >
           View
@@ -138,7 +190,14 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
   );
 };
 
-export default function EventsTable({ rows, page, totalPages, pageSize, setPage, setPageSize }: EventsTableProps) {
+export default function EventsTable({
+  rows,
+  page,
+  totalPages,
+  pageSize,
+  setPage,
+  setPageSize,
+}: EventsTableProps) {
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -146,13 +205,27 @@ export default function EventsTable({ rows, page, totalPages, pageSize, setPage,
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="h-12 font-semibold">Time</TableHead>
-              <TableHead className="text-center h-12 font-semibold">Type</TableHead>
-              <TableHead className="text-center h-12 font-semibold">Token In</TableHead>
-              <TableHead className="text-center h-12 font-semibold">Token Out</TableHead>
-              <TableHead className="text-center h-12 font-semibold">Amount In</TableHead>
-              <TableHead className="text-center h-12 font-semibold">Amount Out</TableHead>
-              <TableHead className="text-center h-12 font-semibold">HTK Received</TableHead>
-              <TableHead className="text-center h-12 font-semibold">Amount Burned</TableHead>
+              <TableHead className="text-center h-12 font-semibold">
+                Type
+              </TableHead>
+              <TableHead className="text-center h-12 font-semibold">
+                Token In
+              </TableHead>
+              <TableHead className="text-center h-12 font-semibold">
+                Token Out
+              </TableHead>
+              <TableHead className="text-center h-12 font-semibold">
+                Amount In
+              </TableHead>
+              <TableHead className="text-center h-12 font-semibold">
+                Amount Out
+              </TableHead>
+              <TableHead className="text-center h-12 font-semibold">
+                HTK Received
+              </TableHead>
+              <TableHead className="text-center h-12 font-semibold">
+                Amount Burned
+              </TableHead>
               <TableHead className="w-[100px] h-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -164,7 +237,10 @@ export default function EventsTable({ rows, page, totalPages, pageSize, setPage,
 
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={9}
+                  className="h-24 text-center text-muted-foreground"
+                >
                   No events found.
                 </TableCell>
               </TableRow>
@@ -203,7 +279,11 @@ export default function EventsTable({ rows, page, totalPages, pageSize, setPage,
                   e.preventDefault();
                   if (page > 1) setPage(page - 1);
                 }}
-                className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={
+                  page === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
                 aria-disabled={page === 1}
               />
             </PaginationItem>
@@ -267,7 +347,11 @@ export default function EventsTable({ rows, page, totalPages, pageSize, setPage,
                   e.preventDefault();
                   if (page < totalPages) setPage(page + 1);
                 }}
-                className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={
+                  page === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
                 aria-disabled={page === totalPages}
               />
             </PaginationItem>

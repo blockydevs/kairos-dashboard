@@ -5,7 +5,10 @@ import {
   TokenData,
 } from "@/services/dex/saucerswapApi";
 import { getPairWhitelist } from "@/services/web3/pairWhitelistContract";
-import { getBalance, startBalancePolling } from "@/services/web3/treasuryContract";
+import {
+  getBalance,
+  startBalancePolling,
+} from "@/services/web3/treasuryContract";
 import { ethers } from "ethers";
 import { PortfolioEntry } from "@/components/dashboard/TreasuryPie";
 
@@ -36,11 +39,13 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
 
   loadInitialData: async () => {
     try {
-      const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_PROVIDER_URL);
+      const provider = new ethers.providers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_RPC_PROVIDER_URL,
+      );
 
       const pairs = await getPairWhitelist();
       const addressSet = new Set<string>();
-      pairs.forEach(p => {
+      pairs.forEach((p) => {
         addressSet.add(p.tokenIn);
         addressSet.add(p.tokenOut);
       });
@@ -60,7 +65,9 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         const rawBal = await getBalance(provider, { tokenAddress: addr });
         balances[t.id] = Number(rawBal) / 10 ** t.decimals;
 
-        const res = await fetch(`/api/utils/get-dominant-color-from-img-src?imgUrl=${encodeURIComponent(t.icon)}`);
+        const res = await fetch(
+          `/api/utils/get-dominant-color-from-img-src?imgUrl=${encodeURIComponent(t.icon)}`,
+        );
         const json = await res.json();
         tokenColors[t.id] = json.color ?? "#e0e0e0";
       }
@@ -72,14 +79,14 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     }
   },
 
-  updateBalances: async provider => {
+  updateBalances: async (provider) => {
     const { tokenAddresses, tokens, balances: currentBalances } = get();
     const newBalances: Record<string, number> = {};
     let changed = false;
 
     for (const addr of tokenAddresses) {
       const tokenId = solidityAddressToTokenIdString(addr);
-      const t = tokens.find(tt => tt.id === tokenId);
+      const t = tokens.find((tt) => tt.id === tokenId);
       if (!t) continue;
 
       const rawBal = await getBalance(provider, { tokenAddress: addr });
@@ -91,7 +98,10 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       }
     }
 
-    if (!changed && Object.keys(currentBalances).length === Object.keys(newBalances).length) {
+    if (
+      !changed &&
+      Object.keys(currentBalances).length === Object.keys(newBalances).length
+    ) {
       return;
     }
 
@@ -100,9 +110,14 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   },
 
   refreshPortfolio: () => {
-    const { tokens, balances, tokenColors, portfolioBreakdown: currentPortfolio } = get();
+    const {
+      tokens,
+      balances,
+      tokenColors,
+      portfolioBreakdown: currentPortfolio,
+    } = get();
 
-    const portfolio = tokens.map(t => {
+    const portfolio = tokens.map((t) => {
       const bal = balances[t.id] ?? 0;
       const usd = bal * (t.priceUsd ?? 0);
 
@@ -111,7 +126,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         icon: t.icon,
         value: usd,
         amount: usd,
-        color: tokenColors[t.id] ?? "#e0e0e0"
+        color: tokenColors[t.id] ?? "#e0e0e0",
       };
     });
 
@@ -123,17 +138,19 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   },
 
   startPollingBalances: () => {
-    const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_PROVIDER_URL);
+    const provider = new ethers.providers.JsonRpcProvider(
+      process.env.NEXT_PUBLIC_RPC_PROVIDER_URL,
+    );
     const { tokenAddresses, updateBalances } = get();
     if (!tokenAddresses.length) return;
 
     const poll = startBalancePolling(
       () => updateBalances(provider),
-      tokenAddresses.map(addr => ({ tokenAddress: addr }))
+      tokenAddresses.map((addr) => ({ tokenAddress: addr })),
     );
 
     set({ stopPolling: () => poll.stop() });
   },
 
-  stopPolling: () => { }
+  stopPolling: () => {},
 }));

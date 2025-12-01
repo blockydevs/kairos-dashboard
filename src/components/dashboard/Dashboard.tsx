@@ -1,13 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { fetchInitialMessages, subscribeToNewMessages, DecodedMessage } from "@/services/hcs";
+import {
+  fetchInitialMessages,
+  subscribeToNewMessages,
+  DecodedMessage,
+} from "@/services/hcs";
 import EventsTable from "./EventsTable";
 import TreasuryPie from "./TreasuryPie";
 import StatsCards from "./StatsCards";
 import { parseMessage } from "./utils";
 import { useDashboardStore } from "@/store/dashboardStore";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Activity } from "lucide-react";
 import { Loader } from "@/components/ui/loader";
@@ -15,6 +25,8 @@ import { toast } from "sonner";
 
 export default function Dashboard() {
   const [messages, setMessages] = useState<DecodedMessage[]>([]);
+  const [cagr, setCagr] = useState(0);
+  const [hitRate, setHitRate] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -36,6 +48,26 @@ export default function Dashboard() {
   }, 0);
 
   useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const res = await fetch(process.env.NEXT_PUBLIC_METRICS_ENDPOINT_URL!);
+        if (!res.ok) {
+          toast.error("Failed to fetch metrics", { id: "metrics-error" });
+          throw new Error("Failed to fetch metrics");
+        }
+
+        const data = await res.json();
+        setCagr(data.cagr);
+        setHitRate(data.hitRate);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchMetrics();
+  }, []);
+
+  useEffect(() => {
     loadInitialData().then(() => {
       startPollingBalances();
     });
@@ -54,15 +86,17 @@ export default function Dashboard() {
         setMessages(initial);
         setLoading(false);
 
-        const sub = subscribeToNewMessages(msg => {
-          setMessages(prev => [msg, ...prev]);
+        const sub = subscribeToNewMessages((msg) => {
+          setMessages((prev) => [msg, ...prev]);
         });
         unsub = sub.unsubscribe;
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : "Unknown error";
         setError(message);
         setLoading(false);
-        toast.error("Failed to fetch Mirror Node data", { id: "mirror-node-error" });
+        toast.error("Failed to fetch Mirror Node data", {
+          id: "mirror-node-error",
+        });
       }
     })();
 
@@ -77,23 +111,30 @@ export default function Dashboard() {
     <div className="bg-zinc-50 dark:bg-black">
       <div className="container mx-auto px-2 sm:px-2 lg:px-2 2xl:px-6 py-6 lg:py-8 max-w-8xl">
         <div className="space-y-4 lg:space-y-4">
-
           <div className="mb-10">
             <h1 className="text-5xl font-bold mb-3 bg-gradient-to-r from-blue-600 via-purple-500 to-cyan-500 bg-clip-text text-transparent animate-gradient">
               Dashboard
             </h1>
           </div>
 
-          <StatsCards balance={totalUsd} cagr={9.32} isLoading={isLoadingDashboardStore} isError={!!isErrorDashboardStore} />
+          <StatsCards
+            balance={totalUsd}
+            cagr={cagr}
+            hitRate={hitRate}
+            isLoading={isLoadingDashboardStore}
+            isError={!!isErrorDashboardStore}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-1">
               <TreasuryPie />
             </div>
 
-            <Card className={cn(
-              "lg:col-span-3 relative overflow-hidden shadow-card hover:shadow-elegant transition-all duration-500 border-2 border-border/50"
-            )}>
+            <Card
+              className={cn(
+                "lg:col-span-3 relative overflow-hidden shadow-card hover:shadow-elegant transition-all duration-500 border-2 border-border/50",
+              )}
+            >
               <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-3xl rounded-full bg-indigo-500" />
 
               <CardHeader className="pb-4 relative">
@@ -102,7 +143,9 @@ export default function Dashboard() {
                     <CardDescription className="text-sm font-medium text-muted-foreground mb-1">
                       Real-time blockchain events
                     </CardDescription>
-                    <CardTitle className="text-base font-semibold">Hedera Topic Events</CardTitle>
+                    <CardTitle className="text-base font-semibold">
+                      Hedera Topic Events
+                    </CardTitle>
                   </div>
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
                     <Activity className="w-5 h-5 text-white" />

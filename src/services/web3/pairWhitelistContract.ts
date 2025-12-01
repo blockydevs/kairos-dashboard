@@ -2,7 +2,8 @@ import { ContractId } from "@hashgraph/sdk";
 import { ethers } from "ethers";
 import pairWhitelistAbi from "@/services/web3/abi/PairWhitelist.json";
 
-const PAIRWHITELIST_CONTRACT_ID = process.env.NEXT_PUBLIC_HEDERA_PAIRWHITELIST_CONTRACT_ID?.trim() || "";
+const PAIRWHITELIST_CONTRACT_ID =
+  process.env.NEXT_PUBLIC_HEDERA_PAIRWHITELIST_CONTRACT_ID?.trim() || "";
 const RPC_PROVIDER_URL = process.env.NEXT_PUBLIC_RPC_PROVIDER_URL?.trim() || "";
 
 export interface WhitelistedPair {
@@ -15,7 +16,7 @@ const provider = new ethers.providers.JsonRpcProvider(RPC_PROVIDER_URL);
 const config = {
   contractId: PAIRWHITELIST_CONTRACT_ID,
   abi: pairWhitelistAbi,
-  method: "getAllWhitelistedPairs"
+  method: "getAllWhitelistedPairs",
 };
 
 export async function getPairWhitelist(): Promise<WhitelistedPair[]> {

@@ -1,8 +1,10 @@
 import { TokenId } from "@hashgraph/sdk";
 import { toast } from "sonner";
 
-const SAUCERSWAP_API_URL = process.env.NEXT_PUBLIC_SAUCERSWAP_API_URL?.trim() || "";
-const SAUCERSWAP_API_KEY = process.env.NEXT_PUBLIC_SAUCERSWAP_API_KEY?.trim() || "";
+const SAUCERSWAP_API_URL =
+  process.env.NEXT_PUBLIC_SAUCERSWAP_API_URL?.trim() || "";
+const SAUCERSWAP_API_KEY =
+  process.env.NEXT_PUBLIC_SAUCERSWAP_API_KEY?.trim() || "";
 
 export interface TokenData {
   id: string;
@@ -20,15 +22,19 @@ export interface TokenData {
   twitterHandle: string;
 }
 
-export async function getDetailedTokenDataById(tokenId: string): Promise<TokenData | undefined> {
+export async function getDetailedTokenDataById(
+  tokenId: string,
+): Promise<TokenData | undefined> {
   try {
-    const headers = { 'x-api-key': SAUCERSWAP_API_KEY };
+    const headers = { "x-api-key": SAUCERSWAP_API_KEY };
     const url = `${SAUCERSWAP_API_URL}/tokens/${tokenId}`;
     const res = await fetch(url, { headers });
     return await res.json();
   } catch (e) {
     console.error("Error fetching token data:", e);
-    toast.error("Failed to fetch data from SaucerSwap API", { id: "saucerswap-api-error" });
+    toast.error("Failed to fetch data from SaucerSwap API", {
+      id: "saucerswap-api-error",
+    });
   }
 }
 

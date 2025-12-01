@@ -23,21 +23,33 @@ function createClient(mirrorNodeUrl: string): Client {
 function randomAddress() {
   const collection = [
     "0x0000000000000000000000000000000000003ad2",
-    "0x0000000000000000000000000000000000001549"
-  ]
+    "0x0000000000000000000000000000000000001549",
+  ];
   return collection[Math.floor(Math.random() * collection.length)];
 }
 
 export async function GET() {
   try {
-    const operatorId = requireEnv(process.env.HEDERA_OPERATOR_ID, "HEDERA_OPERATOR_ID");
-    const operatorKey = requireEnv(process.env.HEDERA_OPERATOR_KEY, "HEDERA_OPERATOR_KEY");
-    const topicIdStr = requireEnv(process.env.NEXT_PUBLIC_TOPIC_ID, "NEXT_PUBLIC_TOPIC_ID");
-    const mirrorNodeUrl = requireEnv(process.env.NEXT_PUBLIC_MIRROR_NODE_URL,"NEXT_PUBLIC_MIRROR_NODE_URL");
+    const operatorId = requireEnv(
+      process.env.HEDERA_OPERATOR_ID,
+      "HEDERA_OPERATOR_ID",
+    );
+    const operatorKey = requireEnv(
+      process.env.HEDERA_OPERATOR_KEY,
+      "HEDERA_OPERATOR_KEY",
+    );
+    const topicIdStr = requireEnv(
+      process.env.NEXT_PUBLIC_TOPIC_ID,
+      "NEXT_PUBLIC_TOPIC_ID",
+    );
+    const mirrorNodeUrl = requireEnv(
+      process.env.NEXT_PUBLIC_MIRROR_NODE_URL,
+      "NEXT_PUBLIC_MIRROR_NODE_URL",
+    );
 
     const client = createClient(mirrorNodeUrl).setOperator(
       AccountId.fromString(operatorId),
-      PrivateKey.fromStringECDSA(operatorKey)
+      PrivateKey.fromStringECDSA(operatorKey),
     );
 
     const topicId = TopicId.fromString(topicIdStr);
@@ -45,7 +57,10 @@ export async function GET() {
     const types = ["BuybackExecuted", "SwapExecuted", "Burned"] as const;
     const type = types[Math.floor(Math.random() * types.length)];
 
-    let eventPayload: Record<string, any> = { type, timestamp: Math.floor(Date.now() / 1000) };
+    let eventPayload: Record<string, any> = {
+      type,
+      timestamp: Math.floor(Date.now() / 1000),
+    };
 
     if (type === "BuybackExecuted") {
       eventPayload = {
@@ -79,9 +94,14 @@ export async function GET() {
       message: eventMessage,
     }).execute(client);
 
-    return Response.json({ ok: true, topicId: topicId.toString(), event: eventPayload });
+    return Response.json({
+      ok: true,
+      topicId: topicId.toString(),
+      event: eventPayload,
+    });
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Failed to submit HCS message";
+    const message =
+      e instanceof Error ? e.message : "Failed to submit HCS message";
     return Response.json({ ok: false, error: message }, { status: 500 });
   }
 }

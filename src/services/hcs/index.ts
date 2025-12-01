@@ -13,13 +13,20 @@ const NEXT_PUBLIC_TOPIC_ID = process.env.NEXT_PUBLIC_TOPIC_ID;
 
 export type { DecodedMessage };
 
-export async function fetchInitialMessages(limit = 25): Promise<DecodedMessage[]> {
-  const mirrorNodeUrl = requireEnv(NEXT_PUBLIC_MIRROR_NODE_URL, "NEXT_PUBLIC_MIRROR_NODE_URL");
+export async function fetchInitialMessages(
+  limit = 25,
+): Promise<DecodedMessage[]> {
+  const mirrorNodeUrl = requireEnv(
+    NEXT_PUBLIC_MIRROR_NODE_URL,
+    "NEXT_PUBLIC_MIRROR_NODE_URL",
+  );
   const topicId = requireEnv(NEXT_PUBLIC_TOPIC_ID, "NEXT_PUBLIC_TOPIC_ID");
   return fetchTopicMessages({ mirrorNodeUrl, topicId, limit });
 }
 
-export function subscribeToNewMessages(onMessage: (m: DecodedMessage) => void): HcsSubscription {
+export function subscribeToNewMessages(
+  onMessage: (m: DecodedMessage) => void,
+): HcsSubscription {
   const startTimeSeconds = Math.floor(Date.now() / 1000);
   const url = `/api/hcs/stream?startTimeSeconds=${encodeURIComponent(startTimeSeconds)}`;
   const es = new EventSource(url);
@@ -28,7 +35,9 @@ export function subscribeToNewMessages(onMessage: (m: DecodedMessage) => void): 
     try {
       const raw = JSON.parse(evt.data);
       if (raw.error) {
-        toast.error(`Mirror Node error: ${raw.error}`, { id: "mirror-node-sse-error" });
+        toast.error(`Mirror Node error: ${raw.error}`, {
+          id: "mirror-node-sse-error",
+        });
         return;
       }
 
@@ -45,7 +54,9 @@ export function subscribeToNewMessages(onMessage: (m: DecodedMessage) => void): 
 
   es.onerror = () => {
     console.error("SSE connection error");
-    toast.error("Mirror Node connection error", { id: "mirror-node-sse-error" });
+    toast.error("Mirror Node connection error", {
+      id: "mirror-node-sse-error",
+    });
   };
 
   return {

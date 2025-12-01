@@ -1,4 +1,9 @@
-import { Client, PrivateKey, AccountId, TopicMessageQuery } from "@hashgraph/sdk";
+import {
+  Client,
+  PrivateKey,
+  AccountId,
+  TopicMessageQuery,
+} from "@hashgraph/sdk";
 
 export interface HcsMessage {
   consensusTimestamp: string;
@@ -24,13 +29,26 @@ export function subscribeToHcs(params: {
   onMessage: (msg: HcsMessage) => void;
   startTimeSeconds?: number;
 }): HcsSubscription {
-  const { mirrorNodeUrl, operatorId, operatorKey, topicId, onMessage, startTimeSeconds } = params;
+  const {
+    mirrorNodeUrl,
+    operatorId,
+    operatorKey,
+    topicId,
+    onMessage,
+    startTimeSeconds,
+  } = params;
 
   const client = createClient(mirrorNodeUrl);
-  client.setOperator(AccountId.fromString(operatorId), PrivateKey.fromStringECDSA(operatorKey));
+  client.setOperator(
+    AccountId.fromString(operatorId),
+    PrivateKey.fromStringECDSA(operatorKey),
+  );
 
   const query = new TopicMessageQuery().setTopicId(topicId);
-  if (typeof startTimeSeconds === "number" && Number.isFinite(startTimeSeconds)) {
+  if (
+    typeof startTimeSeconds === "number" &&
+    Number.isFinite(startTimeSeconds)
+  ) {
     query.setStartTime(new Date(startTimeSeconds * 1000));
   }
 
@@ -45,9 +63,9 @@ export function subscribeToHcs(params: {
       onMessage({
         consensusTimestamp: m.consensusTimestamp.toString(),
         message: utf8,
-        sequenceNumber: m.sequenceNumber
+        sequenceNumber: m.sequenceNumber,
       });
-    }
+    },
   );
 
   return {

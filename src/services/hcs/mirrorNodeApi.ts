@@ -19,7 +19,7 @@ function decodeBase64ToUtf8(b64: string): string {
       return Buffer.from(b64, "base64").toString("utf-8");
     }
     const decoded = atob(b64);
-    const bytes = Uint8Array.from(decoded, c => c.charCodeAt(0));
+    const bytes = Uint8Array.from(decoded, (c) => c.charCodeAt(0));
     const decoder = new TextDecoder();
     return decoder.decode(bytes);
   } catch {
@@ -41,10 +41,9 @@ export async function fetchTopicMessages(params: {
     throw new Error(`Mirror Node HTTP ${res.status}`);
   }
   const data = (await res.json()) as { messages: MirrorNodeMessage[] };
-  return (data.messages ?? [])
-    .map((m) => ({
-      sequenceNumber: m.sequence_number,
-      consensusTimestamp: m.consensus_timestamp,
-      message: decodeBase64ToUtf8(m.message),
-    }))
+  return (data.messages ?? []).map((m) => ({
+    sequenceNumber: m.sequence_number,
+    consensusTimestamp: m.consensus_timestamp,
+    message: decodeBase64ToUtf8(m.message),
+  }));
 }
