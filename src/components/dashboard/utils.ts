@@ -3,6 +3,8 @@ import {
   solidityAddressToTokenIdString,
 } from "@/services/dex/saucerswapApi";
 
+export { solidityAddressToTokenIdString };
+
 interface MessageData {
   message: string;
   consensusTimestamp: string;

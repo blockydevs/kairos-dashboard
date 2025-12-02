@@ -8,7 +8,11 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatTimestamp, getTokenDetails } from "./utils";
+import {
+  formatTimestamp,
+  getTokenDetails,
+  solidityAddressToTokenIdString,
+} from "./utils";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Select,
@@ -71,10 +75,23 @@ function mapEventType(ev: Event): {
 } {
   switch (ev.type) {
     case "SwapExecuted":
-      if ((Number(ev.amountOut) ?? 0) > (Number(ev.amountIn) ?? 0)) {
+      const usdcTokenId = process.env.NEXT_PUBLIC_USDC_TOKEN_ID;
+      const tokenInId = ev.tokenIn
+        ? solidityAddressToTokenIdString(ev.tokenIn)
+        : null;
+      const tokenOutId = ev.tokenOut
+        ? solidityAddressToTokenIdString(ev.tokenOut)
+        : null;
+
+      const isTokenInUsdc = tokenInId === usdcTokenId;
+      const isTokenOutUsdc = tokenOutId === usdcTokenId;
+
+      if (isTokenInUsdc) {
         return { label: "BUY", color: "success" };
-      } else {
+      } else if (isTokenOutUsdc) {
         return { label: "SELL", color: "error" };
+      } else {
+        return { label: "OTHER", color: "outline" };
       }
     case "BuybackExecuted":
       return { label: "BUYBACK", color: "default" };
