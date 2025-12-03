@@ -131,55 +131,55 @@ export default function Dashboard() {
               <TreasuryPie />
             </div>
 
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 space-y-4">
               <ProfitHistoryChart />
+
+              <Card
+                className={cn(
+                  "relative overflow-hidden shadow-card hover:shadow-elegant transition-all duration-500 border-2 border-border/50",
+                )}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-3xl rounded-full bg-indigo-500" />
+
+                <CardHeader className="pb-4 relative">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardDescription className="text-sm font-medium text-muted-foreground mb-1">
+                        Real-time blockchain events
+                      </CardDescription>
+                      <CardTitle className="text-base font-semibold">
+                        Hedera Topic Events
+                      </CardTitle>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                      <Activity className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="pt-0 relative">
+                  {loading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader />
+                    </div>
+                  ) : error ? (
+                    <div className="flex items-center justify-center py-12">
+                      <p className="text-destructive">Error: {error}</p>
+                    </div>
+                  ) : (
+                    <EventsTable
+                      rows={paginatedRows}
+                      page={page}
+                      totalPages={totalPages}
+                      pageSize={pageSize}
+                      setPage={setPage}
+                      setPageSize={setPageSize}
+                    />
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          <Card
-            className={cn(
-              "relative overflow-hidden shadow-card hover:shadow-elegant transition-all duration-500 border-2 border-border/50",
-            )}
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 opacity-10 blur-3xl rounded-full bg-indigo-500" />
-
-            <CardHeader className="pb-4 relative">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardDescription className="text-sm font-medium text-muted-foreground mb-1">
-                    Real-time blockchain events
-                  </CardDescription>
-                  <CardTitle className="text-base font-semibold">
-                    Hedera Topic Events
-                  </CardTitle>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
-                  <Activity className="w-5 h-5 text-white" />
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="pt-0 relative">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader />
-                </div>
-              ) : error ? (
-                <div className="flex items-center justify-center py-12">
-                  <p className="text-destructive">Error: {error}</p>
-                </div>
-              ) : (
-                <EventsTable
-                  rows={paginatedRows}
-                  page={page}
-                  totalPages={totalPages}
-                  pageSize={pageSize}
-                  setPage={setPage}
-                  setPageSize={setPageSize}
-                />
-              )}
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

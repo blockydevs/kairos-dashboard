@@ -127,14 +127,14 @@ export default function ProfitHistoryChart() {
       : 0;
 
   return (
-    <Card className="h-full border-2 border-border/50 shadow-card hover:shadow-elegant transition-all duration-500">
+    <Card className="border-2 border-border/50 shadow-card hover:shadow-elegant transition-all duration-500">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
             <CardTitle>Profit History</CardTitle>
             <CardDescription>
               {data.length > 0
-                ? `${new Date(data[0].timestamp).toLocaleDateString()} - ${new Date(data[data.length - 1].timestamp).toLocaleDateString()}`
+                ? `${formatXAxis(data[0].timestamp)} - ${formatXAxis(data[data.length - 1].timestamp)}`
                 : "Loading..."}
             </CardDescription>
           </div>

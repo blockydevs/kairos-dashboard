@@ -2,7 +2,6 @@
 
 import { PieChart, Pie, Cell, Tooltip, PieLabelRenderProps } from "recharts";
 import { useDashboardStore } from "@/store/dashboardStore";
-import { Loader2 } from "lucide-react";
 import { Loader } from "@/components/ui/loader";
 
 export interface PortfolioEntry {
@@ -88,8 +87,8 @@ export function Chart() {
               nameKey="name"
               cx="50%"
               cy="50%"
-              outerRadius={100}
-              innerRadius={40}
+              outerRadius={75}
+              innerRadius={30}
               label={(props) => renderLabel(props, portfolioBreakdown)}
               labelLine={false}
             >
