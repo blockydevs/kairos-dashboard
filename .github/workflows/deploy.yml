@@ -1,0 +1,36 @@
+name: Docker Image and Deployment CI
+
+on:
+  workflow_dispatch: # możliwość ręcznego odpalania
+    inputs:
+      only_env:
+        description: "Only update .env."
+        type: boolean
+        required: false
+        default: false
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: blockyresearch-prod
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create docker build args
+        if: inputs.only_env == false
+        run: echo "${{ secrets.ENV_FILE }}" > build.args
+
+      - name: Build Docker image
+        if: inputs.only_env == false
+        run: docker build -t huffy-dashboard:latest -f Dockerfile .
+
+      - name: Update .env
+        working-directory: /opt/huffy
+        run: echo "${{ secrets.ENV_FILE }}" > .env.dashboard
+
+      - name: Run Docker image
+        working-directory: /opt/huffy
+        run: docker compose up -d dashboard
