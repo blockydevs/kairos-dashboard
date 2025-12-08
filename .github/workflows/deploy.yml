@@ -29,7 +29,7 @@ jobs:
 
       - name: Update .env
         working-directory: /opt/huffy
-        run: echo "${{ secrets.ENV_FILE }}" > .env.bdr
+        run: echo "${{ secrets.ENV_FILE }}" > .env.dashboard
 
       - name: Run Docker image
         working-directory: /opt/huffy
