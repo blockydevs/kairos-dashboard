@@ -59,7 +59,7 @@ function formatAmount(
   if (amount === undefined || amount === null || decimals === null) return "-";
   const value = Number(amount) / 10 ** decimals;
   if (isNaN(value)) return "-";
-  return value.toFixed(4);
+  return value;
 }
 
 function mapEventType(ev: Event): {

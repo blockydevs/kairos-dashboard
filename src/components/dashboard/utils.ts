@@ -23,6 +23,14 @@ export function shortenAddress(
 }
 
 export async function getTokenDetails(tokenAddress: string) {
+  const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+  if (tokenAddress.toLowerCase() === ZERO_ADDRESS.toLowerCase()) {
+    return {
+      symbol: "HBAR",
+      decimals: 8,
+    };
+  }
+
   const tokenId = solidityAddressToTokenIdString(tokenAddress);
   const tokenData = await getDetailedTokenDataById(tokenId);
   return {

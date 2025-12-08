@@ -15,7 +15,7 @@ export interface HcsSubscription {
   unsubscribe: () => void;
 }
 
-function createClient(mirrorNodeUrl: string): Client {
+export function createClient(mirrorNodeUrl: string): Client {
   const lower = mirrorNodeUrl.toLowerCase();
   if (lower.includes("testnet")) return Client.forTestnet();
   return Client.forMainnet();

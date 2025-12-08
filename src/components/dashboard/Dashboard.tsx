@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   fetchInitialMessages,
   subscribeToNewMessages,
@@ -43,25 +43,31 @@ export default function Dashboard() {
     error: isErrorDashboardStore,
   } = useDashboardStore();
 
-  const totalUsd = tokens.reduce((sum, t) => {
-    const bal = balances[t.id] || 0;
-    return sum + bal * (t.priceUsd || 0);
-  }, 0);
+
+  const totalUsd = useMemo(() => {
+    return tokens.reduce((sum, t) => {
+      const bal = balances[t.id] || 0;
+      const price = t.priceUsd || 0;
+      return sum + bal * price;
+    }, 0);
+  }, [tokens, balances]);
 
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
         const res = await fetch(process.env.NEXT_PUBLIC_METRICS_ENDPOINT_URL!);
         if (!res.ok) {
-          toast.error("Failed to fetch metrics", { id: "metrics-error" });
-          throw new Error("Failed to fetch metrics");
+
+          console.warn("Failed to fetch metrics endpoint");
+          return;
         }
 
         const data = await res.json();
         setCagr(data.cagr);
         setHitRate(data.hitRate);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching metrics:", err);
+        toast.error("Failed to fetch metrics", { id: "metrics-error" });
       }
     };
 
@@ -76,7 +82,7 @@ export default function Dashboard() {
     return () => {
       stopPolling();
     };
-  }, []);
+  }, [loadInitialData, startPollingBalances, stopPolling]);
 
   useEffect(() => {
     let unsub: (() => void) | null = null;
