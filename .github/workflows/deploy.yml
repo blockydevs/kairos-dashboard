@@ -21,11 +21,11 @@ jobs:
 
       - name: Create docker build args
         if: inputs.only_env == false
-        run: echo "${{ secrets.ENV_FILE }}" > build.args
+        run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: Build Docker image
         if: inputs.only_env == false
-        run: docker build -t huffy-dashboard:latest -f Dockerfile $(for i in `cat build.args`; do out+="--build-arg $i " ; done; echo $out;out="") .
+        run: docker build -t huffy-dashboard:latest -f Dockerfile .
 
       - name: Update .env
         working-directory: /opt/huffy
