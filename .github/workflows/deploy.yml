@@ -25,7 +25,7 @@ jobs:
 
       - name: Build Docker image
         if: inputs.only_env == false
-        run: docker build -t huffy-dashboard:latest -f Dockerfile .
+        run: docker build -t huffy-dashboard:latest -f Dockerfile $(for i in `cat build.args`; do out+="--build-arg $i " ; done; echo $out;out="") .
 
       - name: Update .env
         working-directory: /opt/huffy
