@@ -43,7 +43,6 @@ export default function Dashboard() {
     error: isErrorDashboardStore,
   } = useDashboardStore();
 
-
   const totalUsd = useMemo(() => {
     return tokens.reduce((sum, t) => {
       const bal = balances[t.id] || 0;
@@ -57,7 +56,6 @@ export default function Dashboard() {
       try {
         const res = await fetch(process.env.NEXT_PUBLIC_METRICS_ENDPOINT_URL!);
         if (!res.ok) {
-
           console.warn("Failed to fetch metrics endpoint");
           return;
         }

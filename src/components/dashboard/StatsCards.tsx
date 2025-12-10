@@ -125,7 +125,17 @@ export default function StatsCards({
             )}
           >
             {sign}
-            {cagr}%{isLoading ? <Loader /> : null}
+            {typeof cagr === "number" ||
+            (typeof cagr === "string" && !isNaN(parseFloat(String(cagr))))
+              ? (() => {
+                  const val =
+                    typeof cagr === "number" ? cagr : parseFloat(String(cagr));
+                  return Math.abs(val) > 1e6
+                    ? val.toExponential(2)
+                    : val.toFixed(2);
+                })()
+              : cagr}
+            %{isLoading ? <Loader /> : null}
           </div>
           <p className="text-xs text-muted-foreground font-medium">
             Annual growth
@@ -157,7 +167,17 @@ export default function StatsCards({
         </CardHeader>
         <CardContent className="relative">
           <div className="text-4xl font-bold mb-2 tracking-tight text-blue-600 dark:text-blue-400 drop-shadow-lg">
-            {hitRate}% {isLoading ? <Loader /> : null}
+            {typeof hitRate === "number" ||
+            (typeof hitRate === "string" && !isNaN(parseFloat(String(hitRate))))
+              ? (() => {
+                  const val =
+                    typeof hitRate === "number"
+                      ? hitRate
+                      : parseFloat(String(hitRate));
+                  return val.toFixed(2);
+                })()
+              : hitRate}
+            % {isLoading ? <Loader /> : null}
           </div>
           <p className="text-xs text-muted-foreground font-medium">
             Trade success rate

@@ -28,9 +28,13 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const WHBAR_ADDRESS = "0x0000000000000000000000000000000000163b5a";
 
 const fetchTokenBalancesFromMirror = async (accountId: string) => {
-  const mirrorUrl = process.env.NEXT_PUBLIC_MIRROR_NODE_URL || "https://mainnet.mirrornode.hedera.com";
+  const mirrorUrl =
+    process.env.NEXT_PUBLIC_MIRROR_NODE_URL ||
+    "https://mainnet.mirrornode.hedera.com";
   try {
-    const res = await fetch(`${mirrorUrl}/api/v1/accounts/${accountId}/tokens?limit=100`);
+    const res = await fetch(
+      `${mirrorUrl}/api/v1/accounts/${accountId}/tokens?limit=100`,
+    );
     if (!res.ok) return {};
 
     const data = await res.json();
@@ -48,9 +52,13 @@ const fetchTokenBalancesFromMirror = async (accountId: string) => {
 };
 
 const fetchHbarBalanceFromMirror = async (accountId: string) => {
-  const mirrorUrl = process.env.NEXT_PUBLIC_MIRROR_NODE_URL || "https://mainnet-public.mirrornode.hedera.com";
+  const mirrorUrl =
+    process.env.NEXT_PUBLIC_MIRROR_NODE_URL ||
+    "https://mainnet-public.mirrornode.hedera.com";
   try {
-    const res = await fetch(`${mirrorUrl}/api/v1/balances?account.id=${accountId}`);
+    const res = await fetch(
+      `${mirrorUrl}/api/v1/balances?account.id=${accountId}`,
+    );
     if (!res.ok) return 0;
 
     const data = await res.json();
@@ -99,7 +107,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
 
       const [mirrorTokenBalances, treasuryHbarTinybars] = await Promise.all([
         fetchTokenBalancesFromMirror(treasuryId),
-        fetchHbarBalanceFromMirror(treasuryId)
+        fetchHbarBalanceFromMirror(treasuryId),
       ]);
 
       for (const addr of tokenAddresses) {
@@ -145,7 +153,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     try {
       const [mirrorTokenBalances, treasuryHbarTinybars] = await Promise.all([
         fetchTokenBalancesFromMirror(treasuryId),
-        fetchHbarBalanceFromMirror(treasuryId)
+        fetchHbarBalanceFromMirror(treasuryId),
       ]);
 
       const whbarTokenId = solidityAddressToTokenIdString(WHBAR_ADDRESS);
@@ -212,7 +220,8 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     const { updateBalances } = get();
     get().stopPolling();
 
-    const intervalMs = Number(process.env.NEXT_PUBLIC_TREASURY_POLL_INTERVAL_MS) || 5000;
+    const intervalMs =
+      Number(process.env.NEXT_PUBLIC_TREASURY_POLL_INTERVAL_MS) || 5000;
 
     const interval = setInterval(() => {
       updateBalances();
