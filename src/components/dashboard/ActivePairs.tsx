@@ -26,11 +26,19 @@ const fallbackSymbol = (idOrAddr: string) =>
 export function ActivePairs() {
   const [pairs, setPairs] = React.useState<PairItem[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
+  type PnlEntry = {
+    base: number;
+    current: number;
+    pct: number;
+    addPairDate?: string;
+    currentDate?: string;
+  };
+  const [pnlMap, setPnlMap] = React.useState<Record<string, PnlEntry>>({});
 
   React.useEffect(() => {
     let cancelled = false;
 
-    const load = async () => {
+    const loadPairs = async () => {
       try {
         setLoading(true);
         const rawPairs = await getPairWhitelist();
@@ -46,21 +54,30 @@ export function ActivePairs() {
             getDetailedTokenDataById(outId),
           ]);
 
+          let tokenInMeta: TokenMeta = {
+            id: inId,
+            symbol:
+              (inMeta as TokenData | undefined)?.symbol || fallbackSymbol(inId),
+            icon: (inMeta as TokenData | undefined)?.icon,
+          };
+          let tokenOutMeta: TokenMeta = {
+            id: outId,
+            symbol:
+              (outMeta as TokenData | undefined)?.symbol ||
+              fallbackSymbol(outId),
+            icon: (outMeta as TokenData | undefined)?.icon,
+          };
+
+          const usdcId = process.env.NEXT_PUBLIC_USDC_TOKEN_ID;
+          if (usdcId && (tokenInMeta.id === usdcId || tokenOutMeta.id === usdcId)) {
+            if (tokenInMeta.id === usdcId && tokenOutMeta.id !== usdcId) {
+              [tokenInMeta, tokenOutMeta] = [tokenOutMeta, tokenInMeta];
+            }
+          }
+
           const item: PairItem = {
-            tokenIn: {
-              id: inId,
-              symbol:
-                (inMeta as TokenData | undefined)?.symbol ||
-                fallbackSymbol(inId),
-              icon: (inMeta as TokenData | undefined)?.icon,
-            },
-            tokenOut: {
-              id: outId,
-              symbol:
-                (outMeta as TokenData | undefined)?.symbol ||
-                fallbackSymbol(outId),
-              icon: (outMeta as TokenData | undefined)?.icon,
-            },
+            tokenIn: tokenInMeta,
+            tokenOut: tokenOutMeta,
           };
 
           enriched.push(item);
@@ -74,7 +91,56 @@ export function ActivePairs() {
       }
     };
 
-    void load();
+    const loadPnl = async () => {
+      const url = process.env.NEXT_PUBLIC_PAIR_PNL_API_URL;
+      if (!url) return;
+
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch PnL");
+        const data: Array<{
+          tokenIn: string;
+          tokenOut: string;
+          addPairDate?: string;
+          priceInAddPairMoment: number;
+          currentDate?: string;
+          priceInCurrentMoment: number;
+        }> = await res.json();
+
+        const map: Record<string, PnlEntry> = {};
+        for (const e of data ?? []) {
+          try {
+            const inId = solidityAddressToTokenIdString(e.tokenIn);
+            const outId = solidityAddressToTokenIdString(e.tokenOut);
+            const base = e?.priceInAddPairMoment;
+            const current = e?.priceInCurrentMoment;
+            if (
+              typeof base === "number" &&
+              base !== 0 &&
+              typeof current === "number"
+            ) {
+              const pct = ((current - base) / base) * 100;
+              map[`${inId}-${outId}`] = {
+                base,
+                current,
+                pct,
+                addPairDate: e.addPairDate,
+                currentDate: e.currentDate,
+              };
+            }
+          } catch {
+            // skip invalid entry
+          }
+        }
+
+        if (!cancelled) setPnlMap(map);
+      } catch {
+        if (!cancelled) setPnlMap({});
+      }
+    };
+
+    void loadPairs();
+    void loadPnl();
     return () => {
       cancelled = true;
     };
@@ -127,9 +193,63 @@ export function ActivePairs() {
                 {pair.tokenOut.symbol}
               </span>
 
-              <span className="ml-auto text-xs font-semibold text-muted-foreground">
-                PnL
-              </span>
+              {(() => {
+                const key = `${pair.tokenIn.id}-${pair.tokenOut.id}`;
+                const revKey = `${pair.tokenOut.id}-${pair.tokenIn.id}`;
+                const entry = pnlMap[key];
+                const revEntry = pnlMap[revKey];
+
+                let pct: number | undefined;
+                let base: number | undefined;
+                let current: number | undefined;
+                let addPairDate: string | undefined;
+                let currentDate: string | undefined;
+
+                if (entry) {
+                  pct = entry.pct;
+                  base = entry.base;
+                  current = entry.current;
+                  addPairDate = entry.addPairDate;
+                  currentDate = entry.currentDate;
+                } else if (revEntry) {
+                  // Invert prices for reversed orientation
+                  base = revEntry.base !== 0 ? 1 / revEntry.base : undefined;
+                  current = revEntry.current !== 0 ? 1 / revEntry.current : undefined;
+                  if (typeof base === "number" && base !== 0 && typeof current === "number") {
+                    pct = ((current - base) / base) * 100;
+                  }
+                  addPairDate = revEntry.addPairDate;
+                  currentDate = revEntry.currentDate;
+                }
+
+                const cls =
+                  "ml-auto text-xs font-semibold " +
+                  (typeof pct === "number"
+                    ? pct > 0
+                      ? "text-green-500"
+                      : pct < 0
+                      ? "text-red-500"
+                      : "text-muted-foreground"
+                    : "text-muted-foreground");
+
+                const label =
+                  typeof pct === "number"
+                    ? `${pct > 0 ? "+" : ""}${pct.toFixed(2)}%`
+                    : "—";
+
+                const title =
+                  typeof pct === "number" &&
+                  typeof base === "number" &&
+                  typeof current === "number"
+                    ? `start date: ${addPairDate ? new Date(addPairDate).toLocaleString() : "—"}, start price: ${base.toFixed(6)}, current date: ${currentDate ? new Date(currentDate).toLocaleString() : "—"}, current price: ${current.toFixed(6)}`
+                    : undefined;
+
+                return (
+                  <span className={cls} title={title}>
+                    {label}
+                  </span>
+                );
+              })()}
             </div>
           ))}
         </div>
