@@ -50,7 +50,10 @@ export default function ProfitHistoryChart() {
         }
         const jsonData = await res.json();
 
-        const sortedData = jsonData.sort(
+        // Handle new API structure with chartData property
+        const chartData = jsonData.chartData || jsonData;
+
+        const sortedData = chartData.sort(
           (a: any, b: any) =>
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
         );
@@ -143,11 +146,10 @@ export default function ProfitHistoryChart() {
               <button
                 key={range}
                 onClick={() => setSelectedRange(range)}
-                className={`px-3 py-1 text-sm font-medium rounded transition-all ${
-                  selectedRange === range
+                className={`px-3 py-1 text-sm font-medium rounded transition-all ${selectedRange === range
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 {range}
               </button>

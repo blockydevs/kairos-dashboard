@@ -4,7 +4,6 @@ import {
   solidityAddressToTokenIdString,
   TokenData,
 } from "@/services/dex/saucerswapApi";
-import { getPairWhitelist } from "@/services/web3/pairWhitelistContract";
 import { PortfolioEntry } from "@/components/dashboard/TreasuryPie";
 
 interface DashboardStore {
@@ -25,7 +24,8 @@ interface DashboardStore {
 }
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-const WHBAR_ADDRESS = "0x0000000000000000000000000000000000163b5a";
+const WHBAR_ADDRESS_MAINNET = "0x0000000000000000000000000000000000163b5a";
+const WHBAR_ADDRESS_TESTNET = "0x0000000000000000000000000000000000003ad2";
 
 const fetchTokenBalancesFromMirror = async (accountId: string) => {
   const mirrorUrl =
@@ -35,7 +35,7 @@ const fetchTokenBalancesFromMirror = async (accountId: string) => {
     const res = await fetch(
       `${mirrorUrl}/api/v1/accounts/${accountId}/tokens?limit=100`,
     );
-    if (!res.ok) return {};
+    if (!res.ok) return null;
 
     const data = await res.json();
     const balanceMap: Record<string, number> = {};
@@ -47,7 +47,7 @@ const fetchTokenBalancesFromMirror = async (accountId: string) => {
     return balanceMap;
   } catch (e) {
     console.error(e);
-    return {};
+    return null;
   }
 };
 
@@ -90,55 +90,72 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         return;
       }
 
+      const profitHistoryUrl = process.env.NEXT_PUBLIC_PROFIT_HISTORY_API_URL;
+      if (!profitHistoryUrl) throw new Error("Profit history endpoint not defined");
+
       const treasuryId = process.env.NEXT_PUBLIC_HEDERA_TREASURY_CONTRACT_ID;
       if (!treasuryId) throw new Error("Missing Treasury ID in env");
 
-      const pairs = await getPairWhitelist();
-      const addressSet = new Set<string>();
-      pairs.forEach((p) => {
-        addressSet.add(p.tokenIn);
-        addressSet.add(p.tokenOut);
-      });
+      const res = await fetch(`${profitHistoryUrl}?limit=1`);
+      if (!res.ok) throw new Error("Failed to fetch profit history");
+      const jsonData = await res.json();
 
-      const tokenAddresses = Array.from(addressSet);
-      const tokens: TokenData[] = [];
-      const balances: Record<string, number> = {};
-      const tokenColors: Record<string, string> = {};
+      const apiTokens = jsonData.tokens || [];
+
+      if (!Array.isArray(apiTokens)) {
+        console.warn("No tokens array found in profit-history response");
+      }
 
       const [mirrorTokenBalances, treasuryHbarTinybars] = await Promise.all([
         fetchTokenBalancesFromMirror(treasuryId),
         fetchHbarBalanceFromMirror(treasuryId),
       ]);
 
-      for (const addr of tokenAddresses) {
+      const tokens: TokenData[] = [];
+      const balances: Record<string, number> = {};
+      const tokenColors: Record<string, string> = {};
+      const addressSet = new Set<string>();
+
+      for (const apiToken of apiTokens) {
+        const addr = apiToken.token;
+        if (!addr || addressSet.has(addr.toLowerCase())) continue;
+        addressSet.add(addr.toLowerCase());
+
         const tokenId = solidityAddressToTokenIdString(addr);
         const t = await getDetailedTokenDataById(tokenId);
-        if (!t) continue;
+        if (!t) {
+          console.warn(`Could not fetch details for token ${tokenId} (${addr})`);
+          continue;
+        }
 
         tokens.push(t);
 
         if (
-          addr.toLowerCase() === WHBAR_ADDRESS.toLowerCase() ||
-          addr.toLowerCase() === ZERO_ADDRESS
+          addr.toLowerCase() === WHBAR_ADDRESS_MAINNET.toLowerCase() ||
+          addr.toLowerCase() === ZERO_ADDRESS ||
+          addr.toLowerCase() === WHBAR_ADDRESS_TESTNET.toLowerCase()
         ) {
           balances[t.id] = treasuryHbarTinybars / 100_000_000;
         } else {
-          const rawVal = mirrorTokenBalances[tokenId] || 0;
-          balances[t.id] = rawVal / 10 ** t.decimals;
+          let val = 0;
+          if (mirrorTokenBalances && mirrorTokenBalances[tokenId] !== undefined) {
+            val = mirrorTokenBalances[tokenId] / 10 ** t.decimals;
+          }
+          balances[t.id] = val;
         }
 
         try {
-          const res = await fetch(
+          const resColor = await fetch(
             `/api/utils/get-dominant-color-from-img-src?imgUrl=${encodeURIComponent(t.icon)}`,
           );
-          const json = await res.json();
-          tokenColors[t.id] = json.color ?? "#e0e0e0";
+          const jsonColor = await resColor.json();
+          tokenColors[t.id] = jsonColor.color ?? "#e0e0e0";
         } catch {
           tokenColors[t.id] = "#e0e0e0";
         }
       }
 
-      set({ tokens, tokenAddresses, balances, tokenColors, loading: false });
+      set({ tokens, tokenAddresses: Array.from(addressSet), balances, tokenColors, loading: false });
       get().refreshPortfolio();
     } catch (e: any) {
       set({ error: e.message ?? "Unknown error", loading: false });
@@ -148,15 +165,37 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   updateBalances: async () => {
     const { tokens, balances: currentBalances } = get();
     const treasuryId = process.env.NEXT_PUBLIC_HEDERA_TREASURY_CONTRACT_ID;
+    const profitHistoryUrl = process.env.NEXT_PUBLIC_PROFIT_HISTORY_API_URL;
+
     if (!treasuryId) return;
 
     try {
+      let apiTokens: any[] = [];
+      if (profitHistoryUrl) {
+        try {
+          const apiRes = await fetch(`${profitHistoryUrl}?limit=1`);
+          if (apiRes.ok) {
+            const jsonData = await apiRes.json();
+            apiTokens = jsonData.tokens || [];
+          }
+        } catch (err) {
+          console.warn("Failed to fetch profit history in updateBalances", err);
+        }
+      }
+
       const [mirrorTokenBalances, treasuryHbarTinybars] = await Promise.all([
         fetchTokenBalancesFromMirror(treasuryId),
         fetchHbarBalanceFromMirror(treasuryId),
       ]);
 
-      const whbarTokenId = solidityAddressToTokenIdString(WHBAR_ADDRESS);
+      if (!mirrorTokenBalances) {
+        console.warn("Update balances failed: could not fetch from mirror node");
+        return;
+      }
+
+      const whbarTokenId_mainnet = solidityAddressToTokenIdString(WHBAR_ADDRESS_MAINNET);
+      const whbarTokenId_testnet = solidityAddressToTokenIdString(WHBAR_ADDRESS_TESTNET);
+
       const zeroAddressTokenId = solidityAddressToTokenIdString(ZERO_ADDRESS);
 
       const newBalances: Record<string, number> = {};
@@ -165,11 +204,14 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       for (const t of tokens) {
         let val = 0;
 
-        if (t.id === whbarTokenId || t.id === zeroAddressTokenId) {
-          val = treasuryHbarTinybars / 100_000_000;
+        if (t.id === whbarTokenId_mainnet || t.id === zeroAddressTokenId || t.id === whbarTokenId_testnet) {
+          if (treasuryHbarTinybars > 0) {
+            val = treasuryHbarTinybars / 100_000_000;
+          }
         } else {
-          const raw = mirrorTokenBalances[t.id] || 0;
-          val = raw / 10 ** t.decimals;
+          if (mirrorTokenBalances[t.id] !== undefined) {
+            val = mirrorTokenBalances[t.id] / 10 ** t.decimals;
+          }
         }
 
         newBalances[t.id] = val;

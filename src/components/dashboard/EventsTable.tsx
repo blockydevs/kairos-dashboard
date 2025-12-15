@@ -65,13 +65,13 @@ function formatAmount(
 function mapEventType(ev: Event): {
   label: string;
   color:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "success"
-    | "error"
-    | "warning";
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "success"
+  | "error"
+  | "warning";
 } {
   switch (ev.type) {
     case "SwapExecuted":
@@ -181,7 +181,7 @@ const EventRow: React.FC<EventRowProps> = ({ ev, idx }) => {
       </TableCell>
       <TableCell className="text-center text-sm">
         {formatAmount(ev.amountOut, tokenOutDecimals)}
-      </TableCell>{" "}
+      </TableCell>
       <TableCell className="text-center text-sm">
         {ev.htkReceived ?? <span className="text-muted-foreground">-</span>}
       </TableCell>

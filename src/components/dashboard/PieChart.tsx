@@ -50,7 +50,10 @@ export function Chart() {
   const isLoading = useDashboardStore((state) => state.loading);
   const isError = useDashboardStore((state) => state.error);
   const hasData = portfolioBreakdown.length > 0;
-  const dataToDisplay = hasData ? portfolioBreakdown : EMPTY_DATA;
+  // Sort tokens by descending percentage share for display purposes
+  const dataToDisplay = hasData
+    ? [...portfolioBreakdown].sort((a, b) => b.value - a.value)
+    : EMPTY_DATA;
 
   const totalValue = hasData
     ? portfolioBreakdown.reduce((sum, token) => sum + token.value, 0)
@@ -142,7 +145,10 @@ export function Chart() {
               />
               <span className="flex-1 text-sm font-medium">{token.name}</span>
               <span className="text-sm font-semibold text-muted-foreground">
-                {((token.value / totalValue) * 100).toFixed(1)}%
+                {totalValue > 0
+                  ? ((token.value / totalValue) * 100).toFixed(1)
+                  : "0.0"}
+                %
               </span>
             </div>
           ))}
