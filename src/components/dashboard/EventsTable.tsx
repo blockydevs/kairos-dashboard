@@ -65,13 +65,13 @@ function formatAmount(
 function mapEventType(ev: Event): {
   label: string;
   color:
-  | "default"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "success"
-  | "error"
-  | "warning";
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "success"
+    | "error"
+    | "warning";
 } {
   switch (ev.type) {
     case "SwapExecuted":

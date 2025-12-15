@@ -91,7 +91,8 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       }
 
       const profitHistoryUrl = process.env.NEXT_PUBLIC_PROFIT_HISTORY_API_URL;
-      if (!profitHistoryUrl) throw new Error("Profit history endpoint not defined");
+      if (!profitHistoryUrl)
+        throw new Error("Profit history endpoint not defined");
 
       const treasuryId = process.env.NEXT_PUBLIC_HEDERA_TREASURY_CONTRACT_ID;
       if (!treasuryId) throw new Error("Missing Treasury ID in env");
@@ -124,7 +125,9 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         const tokenId = solidityAddressToTokenIdString(addr);
         const t = await getDetailedTokenDataById(tokenId);
         if (!t) {
-          console.warn(`Could not fetch details for token ${tokenId} (${addr})`);
+          console.warn(
+            `Could not fetch details for token ${tokenId} (${addr})`,
+          );
           continue;
         }
 
@@ -138,7 +141,10 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
           balances[t.id] = treasuryHbarTinybars / 100_000_000;
         } else {
           let val = 0;
-          if (mirrorTokenBalances && mirrorTokenBalances[tokenId] !== undefined) {
+          if (
+            mirrorTokenBalances &&
+            mirrorTokenBalances[tokenId] !== undefined
+          ) {
             val = mirrorTokenBalances[tokenId] / 10 ** t.decimals;
           }
           balances[t.id] = val;
@@ -155,7 +161,13 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         }
       }
 
-      set({ tokens, tokenAddresses: Array.from(addressSet), balances, tokenColors, loading: false });
+      set({
+        tokens,
+        tokenAddresses: Array.from(addressSet),
+        balances,
+        tokenColors,
+        loading: false,
+      });
       get().refreshPortfolio();
     } catch (e: any) {
       set({ error: e.message ?? "Unknown error", loading: false });
@@ -189,12 +201,18 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       ]);
 
       if (!mirrorTokenBalances) {
-        console.warn("Update balances failed: could not fetch from mirror node");
+        console.warn(
+          "Update balances failed: could not fetch from mirror node",
+        );
         return;
       }
 
-      const whbarTokenId_mainnet = solidityAddressToTokenIdString(WHBAR_ADDRESS_MAINNET);
-      const whbarTokenId_testnet = solidityAddressToTokenIdString(WHBAR_ADDRESS_TESTNET);
+      const whbarTokenId_mainnet = solidityAddressToTokenIdString(
+        WHBAR_ADDRESS_MAINNET,
+      );
+      const whbarTokenId_testnet = solidityAddressToTokenIdString(
+        WHBAR_ADDRESS_TESTNET,
+      );
 
       const zeroAddressTokenId = solidityAddressToTokenIdString(ZERO_ADDRESS);
 
@@ -204,7 +222,11 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       for (const t of tokens) {
         let val = 0;
 
-        if (t.id === whbarTokenId_mainnet || t.id === zeroAddressTokenId || t.id === whbarTokenId_testnet) {
+        if (
+          t.id === whbarTokenId_mainnet ||
+          t.id === zeroAddressTokenId ||
+          t.id === whbarTokenId_testnet
+        ) {
           if (treasuryHbarTinybars > 0) {
             val = treasuryHbarTinybars / 100_000_000;
           }

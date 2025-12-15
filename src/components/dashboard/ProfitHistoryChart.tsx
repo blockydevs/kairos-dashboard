@@ -146,10 +146,11 @@ export default function ProfitHistoryChart() {
               <button
                 key={range}
                 onClick={() => setSelectedRange(range)}
-                className={`px-3 py-1 text-sm font-medium rounded transition-all ${selectedRange === range
+                className={`px-3 py-1 text-sm font-medium rounded transition-all ${
+                  selectedRange === range
                     ? "bg-background shadow-sm text-foreground"
                     : "text-muted-foreground hover:text-foreground"
-                  }`}
+                }`}
               >
                 {range}
               </button>

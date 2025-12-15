@@ -8,6 +8,7 @@ import {
 } from "@/services/hcs";
 import EventsTable from "./EventsTable";
 import TreasuryPie from "./TreasuryPie";
+import TradingParameters from "./TradingParameters";
 import StatsCards from "./StatsCards";
 import ProfitHistoryChart from "./ProfitHistoryChart";
 import { parseMessage } from "./utils";
@@ -131,8 +132,9 @@ export default function Dashboard() {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-4">
               <TreasuryPie />
+              <TradingParameters />
             </div>
 
             <div className="lg:col-span-3 space-y-4">
