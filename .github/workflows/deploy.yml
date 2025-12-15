@@ -1,7 +1,7 @@
 name: Docker Image and Deployment CI
 
 on:
-  workflow_dispatch: # możliwość ręcznego odpalania
+  workflow_dispatch:
     inputs:
       only_env:
         description: "Only update .env."
@@ -25,12 +25,12 @@ jobs:
 
       - name: Build Docker image
         if: inputs.only_env == false
-        run: docker build -t huffy-dashboard:latest -f Dockerfile .
+        run: docker build -t kairos-dashboard:latest -f Dockerfile .
 
       - name: Update .env
-        working-directory: /opt/huffy
+        working-directory: /opt/kairos
         run: echo "${{ secrets.ENV_FILE }}" > .env.dashboard
 
       - name: Run Docker image
-        working-directory: /opt/huffy
+        working-directory: /opt/kairos
         run: docker compose up -d dashboard

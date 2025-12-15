@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer className="w-full h-12 xl:h-16 bg-background border-t border-border flex items-center justify-center px-4 mt-auto">
       <a
-        href={process.env.NEXT_PUBLIC_X_LINK || "https://x.com/huffy_bot"}
+        href={process.env.NEXT_PUBLIC_X_LINK || "https://x.com/"}
         target="_blank"
         rel="noopener noreferrer"
         className="hover:text-primary transition-colors"

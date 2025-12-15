@@ -1,6 +1,6 @@
-# Huffy Dashboard
+# Kairos Dashboard
 
-Huffy Dashboard is a dashboard application built with **Next.js**, using **Zustand** for state management, **TanStack React Query** for data fetching and caching, and **shadcn/ui** for UI components.
+Kairos Dashboard is a dashboard application built with **Next.js**, using **Zustand** for state management, **TanStack React Query** for data fetching and caching, and **shadcn/ui** for UI components.
 
 ## Features
 
