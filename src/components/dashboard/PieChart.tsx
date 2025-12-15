@@ -49,14 +49,16 @@ export function Chart() {
   );
   const isLoading = useDashboardStore((state) => state.loading);
   const isError = useDashboardStore((state) => state.error);
-  const hasData = portfolioBreakdown.length > 0;
-  // Sort tokens by descending percentage share for display purposes
-  const dataToDisplay = hasData
-    ? [...portfolioBreakdown].sort((a, b) => b.value - a.value)
+  const tokens: PortfolioEntry[] = Array.isArray(portfolioBreakdown)
+    ? (portfolioBreakdown as PortfolioEntry[])
+    : [];
+  const hasData = tokens.length > 0;
+  const dataToDisplay: PortfolioEntry[] = hasData
+    ? tokens.slice().sort((a, b) => Number(b.value ?? 0) - Number(a.value ?? 0))
     : EMPTY_DATA;
 
   const totalValue = hasData
-    ? portfolioBreakdown.reduce((sum, token) => sum + token.value, 0)
+    ? tokens.reduce((sum, token) => sum + Number(token.value ?? 0), 0)
     : 1;
 
   if (isLoading) {
@@ -92,7 +94,7 @@ export function Chart() {
               cy="50%"
               outerRadius={75}
               innerRadius={30}
-              label={(props) => renderLabel(props, portfolioBreakdown)}
+              label={(props) => renderLabel(props, tokens)}
               labelLine={false}
             >
               {dataToDisplay.map((entry, index) => (
@@ -103,9 +105,9 @@ export function Chart() {
           {hasData && (
             <Tooltip
               formatter={(_value, name) => {
-                const item = portfolioBreakdown.find((i) => i.name === name);
+                const item = tokens.find((i) => i.name === name);
                 return [
-                  `$${item?.amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                  `$${Number(item?.amount ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                   name,
                 ];
               }}
@@ -141,7 +143,7 @@ export function Chart() {
               <img
                 src={token.icon}
                 alt={token.name}
-                className="size-5 flex-shrink-0"
+                className="size-5 shrink-0"
               />
               <span className="flex-1 text-sm font-medium">{token.name}</span>
               <span className="text-sm font-semibold text-muted-foreground">
