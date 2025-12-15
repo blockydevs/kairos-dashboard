@@ -28,9 +28,9 @@ jobs:
         run: docker build -t kairos-dashboard:latest -f Dockerfile .
 
       - name: Update .env
-        working-directory: /opt/kairos
+        working-directory: /opt/huffy
         run: echo "${{ secrets.ENV_FILE }}" > .env.dashboard
 
       - name: Run Docker image
-        working-directory: /opt/kairos
+        working-directory: /opt/huffy
         run: docker compose up -d dashboard
