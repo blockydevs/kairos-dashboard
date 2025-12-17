@@ -102,9 +102,9 @@ export function ActivePairs() {
           tokenIn: string;
           tokenOut: string;
           addPairDate?: string;
-          priceInAddPairMoment: number;
+          priceInAddPairMoment: number | string;
           currentDate?: string;
-          priceInCurrentMoment: number;
+          priceInCurrentMoment: number | string;
         }> = await res.json();
 
         const map: Record<string, PnlEntry> = {};
@@ -112,8 +112,14 @@ export function ActivePairs() {
           try {
             const inId = solidityAddressToTokenIdString(e.tokenIn);
             const outId = solidityAddressToTokenIdString(e.tokenOut);
-            const base = e?.priceInAddPairMoment;
-            const current = e?.priceInCurrentMoment;
+            const base =
+              typeof e?.priceInAddPairMoment === "string"
+                ? Number(e.priceInAddPairMoment)
+                : e?.priceInAddPairMoment;
+            const current =
+              typeof e?.priceInCurrentMoment === "string"
+                ? Number(e.priceInCurrentMoment)
+                : e?.priceInCurrentMoment;
             if (
               typeof base === "number" &&
               base !== 0 &&
