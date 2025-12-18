@@ -240,7 +240,6 @@ export function ActivePairs() {
 
                 const label = typeof pnlStr === "string" ? pnlStr : "—";
 
-                // Zawartość tooltipa z details
                 const content = details ? (
                   <div className="space-y-1">
                     {typeof details.buyCount === "number" && (
@@ -280,7 +279,7 @@ export function ActivePairs() {
                     )}
                   </div>
                 ) : (
-                  <div className="text-muted-foreground">Brak szczegółów</div>
+                  <div className="text-muted-foreground">No data</div>
                 );
 
                 return (
