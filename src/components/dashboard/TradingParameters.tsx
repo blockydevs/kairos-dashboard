@@ -141,6 +141,12 @@ function TradingParameters() {
     return expr;
   };
 
+  const hashscanBase =
+    process.env.NEXT_PUBLIC_HASHSCAN_URL?.replace(/\/+$/, "") ||
+    "https://hashscan.io/mainnet";
+  const operatorId = systemInfo?.HEDERA_OPERATOR_ID?.trim();
+  const operatorUrl = operatorId ? `${hashscanBase}/account/${operatorId}` : undefined;
+
   return (
     <Card
       className={cn(
@@ -243,7 +249,18 @@ function TradingParameters() {
                   Operator ID
                 </span>
                 <span className="text-sm font-medium">
-                  {systemInfo.HEDERA_OPERATOR_ID || "-"}
+                  {operatorId ? (
+                    <a
+                      href={operatorUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline underline-offset-4"
+                    >
+                      {operatorId}
+                    </a>
+                  ) : (
+                    "-"
+                  )}
                 </span>
               </div>
             </div>
