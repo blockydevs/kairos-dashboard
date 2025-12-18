@@ -121,7 +121,37 @@ export default function ProfitHistoryChart() {
   };
 
   const formatYAxis = (value: number) => {
-    return `$${value.toFixed(0)}`;
+    return `$${value.toFixed(2)}`;
+  };
+
+  const getYDomain = () => {
+    if (!data || data.length === 0) return [0, 1] as [number, number];
+
+    const values = data.map((d) => d.value);
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const range = maxVal - minVal;
+
+    const PCT_PADDING = 0.1; // 10%
+    const MIN_ABS_PADDING = 0.5;
+    const MIN_TOTAL_RANGE = 1.0;
+
+    if (range === 0) {
+      const half = MIN_TOTAL_RANGE / 2;
+      return [minVal - half, maxVal + half] as [number, number];
+    }
+
+    const pad = Math.max(range * PCT_PADDING, MIN_ABS_PADDING);
+    const lower = minVal - pad;
+    const upper = maxVal + pad;
+    if (upper - lower < MIN_TOTAL_RANGE) {
+      const center = (upper + lower) / 2;
+      return [center - MIN_TOTAL_RANGE / 2, center + MIN_TOTAL_RANGE / 2] as [
+        number,
+        number,
+      ];
+    }
+    return [lower, upper] as [number, number];
   };
 
   const trend =
@@ -198,6 +228,7 @@ export default function ProfitHistoryChart() {
                   axisLine={false}
                   tickMargin={8}
                   tickFormatter={formatYAxis}
+                  domain={getYDomain()}
                 />
                 <Tooltip
                   content={({ active, payload, label }) => {
