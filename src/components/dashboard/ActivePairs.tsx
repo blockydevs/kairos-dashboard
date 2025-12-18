@@ -8,6 +8,7 @@ import {
   solidityAddressToTokenIdString,
   type TokenData,
 } from "@/services/dex/saucerswapApi";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type TokenMeta = {
   id: string;
@@ -26,12 +27,19 @@ const fallbackSymbol = (idOrAddr: string) =>
 export function ActivePairs() {
   const [pairs, setPairs] = React.useState<PairItem[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
-  type PnlEntry = {
-    base: number;
-    current: number;
-    pct: number;
-    addPairDate?: string;
+  type PnlDetails = {
+    buyCount?: number;
+    firstBuyDate?: string;
+    lastBuyDate?: string;
+    avgBuyPrice?: number;
+    currentPrice?: number;
     currentDate?: string;
+    inventoryUnits?: number;
+  };
+
+  type PnlEntry = {
+    pnl: string; // e.g. "+1.23%" or "-4.56%"
+    details?: PnlDetails;
   };
   const [pnlMap, setPnlMap] = React.useState<Record<string, PnlEntry>>({});
 
@@ -101,10 +109,16 @@ export function ActivePairs() {
         const data: Array<{
           tokenIn: string;
           tokenOut: string;
-          addPairDate?: string;
-          priceInAddPairMoment: number | string;
-          currentDate?: string;
-          priceInCurrentMoment: number | string;
+          pnl: string;
+          details?: {
+            buyCount?: number;
+            firstBuyDate?: string;
+            lastBuyDate?: string;
+            avgBuyPrice?: number;
+            currentPrice?: number;
+            currentDate?: string;
+            inventoryUnits?: number;
+          };
         }> = await res.json();
 
         const map: Record<string, PnlEntry> = {};
@@ -112,28 +126,10 @@ export function ActivePairs() {
           try {
             const inId = solidityAddressToTokenIdString(e.tokenIn);
             const outId = solidityAddressToTokenIdString(e.tokenOut);
-            const base =
-              typeof e?.priceInAddPairMoment === "string"
-                ? Number(e.priceInAddPairMoment)
-                : e?.priceInAddPairMoment;
-            const current =
-              typeof e?.priceInCurrentMoment === "string"
-                ? Number(e.priceInCurrentMoment)
-                : e?.priceInCurrentMoment;
-            if (
-              typeof base === "number" &&
-              base !== 0 &&
-              typeof current === "number"
-            ) {
-              const pct = ((current - base) / base) * 100;
-              map[`${inId}-${outId}`] = {
-                base,
-                current,
-                pct,
-                addPairDate: e.addPairDate,
-                currentDate: e.currentDate,
-              };
-            }
+            map[`${inId}-${outId}`] = {
+              pnl: e.pnl,
+              details: e.details,
+            };
           } catch {
             // skip invalid entry
           }
@@ -205,55 +201,95 @@ export function ActivePairs() {
                 const entry = pnlMap[key];
                 const revEntry = pnlMap[revKey];
 
-                let pct: number | undefined;
-                let base: number | undefined;
-                let current: number | undefined;
-                let addPairDate: string | undefined;
-                let currentDate: string | undefined;
-
+                let pnlStr: string | undefined;
+                let details: PnlDetails | undefined;
                 if (entry) {
-                  pct = entry.pct;
-                  base = entry.base;
-                  current = entry.current;
-                  addPairDate = entry.addPairDate;
-                  currentDate = entry.currentDate;
+                  pnlStr = entry.pnl;
+                  details = entry.details;
                 } else if (revEntry) {
-                  // Invert prices for reversed orientation
-                  base = revEntry.base !== 0 ? 1 / revEntry.base : undefined;
-                  current = revEntry.current !== 0 ? 1 / revEntry.current : undefined;
-                  if (typeof base === "number" && base !== 0 && typeof current === "number") {
-                    pct = ((current - base) / base) * 100;
+                  const raw = parseFloat((revEntry.pnl || "").replace(/%/g, ""));
+                  if (!Number.isNaN(raw)) {
+                    const flipped = -raw;
+                    pnlStr = `${flipped > 0 ? "+" : ""}${flipped.toFixed(2)}%`;
                   }
-                  addPairDate = revEntry.addPairDate;
-                  currentDate = revEntry.currentDate;
+                  if (revEntry.details) {
+                    const d = revEntry.details;
+                    details = {
+                      ...d,
+                      avgBuyPrice:
+                        typeof d.avgBuyPrice === "number" && d.avgBuyPrice !== 0
+                          ? 1 / d.avgBuyPrice
+                          : d.avgBuyPrice,
+                      currentPrice:
+                        typeof d.currentPrice === "number" && d.currentPrice !== 0
+                          ? 1 / d.currentPrice
+                          : d.currentPrice,
+                    };
+                  }
                 }
 
                 const cls =
                   "ml-auto text-xs font-semibold " +
-                  (typeof pct === "number"
-                    ? pct > 0
+                  (typeof pnlStr === "string"
+                    ? pnlStr.includes("+")
                       ? "text-green-500"
-                      : pct < 0
+                      : pnlStr.includes("-")
                       ? "text-red-500"
                       : "text-muted-foreground"
                     : "text-muted-foreground");
 
-                const label =
-                  typeof pct === "number"
-                    ? `${pct > 0 ? "+" : ""}${pct.toFixed(2)}%`
-                    : "—";
+                const label = typeof pnlStr === "string" ? pnlStr : "—";
 
-                const title =
-                  typeof pct === "number" &&
-                  typeof base === "number" &&
-                  typeof current === "number"
-                    ? `start date: ${addPairDate ? new Date(addPairDate).toLocaleString() : "—"}, start price: ${base.toFixed(6)}, current date: ${currentDate ? new Date(currentDate).toLocaleString() : "—"}, current price: ${current.toFixed(6)}`
-                    : undefined;
+                // Zawartość tooltipa z details
+                const content = details ? (
+                  <div className="space-y-1">
+                    {typeof details.buyCount === "number" && (
+                      <div>
+                        <span className="text-muted-foreground">buyCount:</span> {details.buyCount}
+                      </div>
+                    )}
+                    {details.firstBuyDate && (
+                      <div>
+                        <span className="text-muted-foreground">firstBuyDate:</span> {new Date(details.firstBuyDate).toLocaleString()}
+                      </div>
+                    )}
+                    {details.lastBuyDate && (
+                      <div>
+                        <span className="text-muted-foreground">lastBuyDate:</span> {new Date(details.lastBuyDate).toLocaleString()}
+                      </div>
+                    )}
+                    {typeof details.avgBuyPrice === "number" && (
+                      <div>
+                        <span className="text-muted-foreground">avgBuyPrice:</span> {details.avgBuyPrice.toFixed(6)}
+                      </div>
+                    )}
+                    {typeof details.currentPrice === "number" && (
+                      <div>
+                        <span className="text-muted-foreground">currentPrice:</span> {details.currentPrice.toFixed(6)}
+                      </div>
+                    )}
+                    {details.currentDate && (
+                      <div>
+                        <span className="text-muted-foreground">currentDate:</span> {new Date(details.currentDate).toLocaleString()}
+                      </div>
+                    )}
+                    {typeof details.inventoryUnits === "number" && (
+                      <div>
+                        <span className="text-muted-foreground">inventoryUnits:</span> {details.inventoryUnits}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground">Brak szczegółów</div>
+                );
 
                 return (
-                  <span className={cls} title={title}>
-                    {label}
-                  </span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className={cls}>{label}</span>
+                    </TooltipTrigger>
+                    <TooltipContent sideOffset={6}>{content}</TooltipContent>
+                  </Tooltip>
                 );
               })()}
             </div>
