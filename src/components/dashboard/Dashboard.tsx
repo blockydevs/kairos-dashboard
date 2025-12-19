@@ -88,7 +88,7 @@ export default function Dashboard() {
 
     (async () => {
       try {
-        const initial = await fetchInitialMessages(25);
+        const initial = await fetchInitialMessages(1000);
         setMessages(initial);
         setLoading(false);
 
