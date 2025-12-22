@@ -29,6 +29,20 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<DecodedMessage[]>([]);
   const [cagr, setCagr] = useState(0);
   const [hitRate, setHitRate] = useState(0);
+  const [pnl, setPnl] = useState<{
+    totalRealizedPnL: number;
+    totalVolumeUsdc: number;
+    tradesCount: number;
+    winningTrades: number;
+    tokenBreakdown: Record<string, { realizedPnL: number; openPositionQuantity: number; averageBuyPrice: number }>;
+  } | null>(null);
+  const [cagrDetails, setCagrDetails] = useState<{
+    totalReturnPercent: string;
+    analysisPeriodDays: number;
+    totalDepositsUsdc: string;
+    totalWithdrawalsUsdc: string;
+    currentValueUsdc: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -64,6 +78,8 @@ export default function Dashboard() {
         const data = await res.json();
         setCagr(data.cagr);
         setHitRate(data.hitRate);
+        if (data.pnl) setPnl(data.pnl);
+        if (data.cagrDetails) setCagrDetails(data.cagrDetails);
       } catch (err) {
         console.error("Error fetching metrics:", err);
         toast.error("Failed to fetch metrics", { id: "metrics-error" });
@@ -127,6 +143,8 @@ export default function Dashboard() {
             balance={totalUsd}
             cagr={cagr}
             hitRate={hitRate}
+            pnl={pnl}
+            cagrDetails={cagrDetails}
             isLoading={isLoadingDashboardStore}
             isError={!!isErrorDashboardStore}
           />
