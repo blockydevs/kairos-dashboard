@@ -78,7 +78,7 @@ export function ActivePairs() {
 
           const usdcId = process.env.NEXT_PUBLIC_USDC_TOKEN_ID;
           if (usdcId && (tokenInMeta.id === usdcId || tokenOutMeta.id === usdcId)) {
-            if (tokenInMeta.id === usdcId && tokenOutMeta.id !== usdcId) {
+            if (tokenOutMeta.id === usdcId && tokenInMeta.id !== usdcId) {
               [tokenInMeta, tokenOutMeta] = [tokenOutMeta, tokenInMeta];
             }
           }
@@ -234,8 +234,8 @@ export function ActivePairs() {
                     ? pnlStr.includes("+")
                       ? "text-green-500"
                       : pnlStr.includes("-")
-                      ? "text-red-500"
-                      : "text-muted-foreground"
+                        ? "text-red-500"
+                        : "text-muted-foreground"
                     : "text-muted-foreground");
 
                 const label = typeof pnlStr === "string" ? pnlStr : "—";
