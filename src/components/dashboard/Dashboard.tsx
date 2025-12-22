@@ -31,17 +31,19 @@ export default function Dashboard() {
   const [hitRate, setHitRate] = useState(0);
   const [pnl, setPnl] = useState<{
     totalRealizedPnL: number;
-    totalVolumeUsdc: number;
+    totalUnrealizedPnL: number;
+    totalNetPnL: number;
+    totalVolumeUSD: number;
     tradesCount: number;
     winningTrades: number;
-    tokenBreakdown: Record<string, { realizedPnL: number; openPositionQuantity: number; averageBuyPrice: number }>;
+    tokenBreakdown: Record<string, { realizedPnL: number; unrealizedPnL: number; openPositionQuantity: number; averageBuyPrice: number }>;
   } | null>(null);
   const [cagrDetails, setCagrDetails] = useState<{
     totalReturnPercent: string;
     analysisPeriodDays: number;
-    totalDepositsUsdc: string;
-    totalWithdrawalsUsdc: string;
-    currentValueUsdc: string;
+    totalDepositsUSD: string;
+    totalWithdrawalsUSD: string;
+    currentValueUSD: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
