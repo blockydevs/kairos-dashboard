@@ -73,7 +73,7 @@ export default function StatsCards({
     : "text-red-600 dark:text-red-400";
   const sign = isPositive ? "+" : "";
 
-  const formatNumber = (value: string | number, decimals = 2) => {
+  const formatNumber = (value: string | number, decimals = 4) => {
     const num = typeof value === "string" ? parseFloat(value) : value;
     return isNaN(num)
       ? "0.00"
@@ -363,7 +363,7 @@ export default function StatsCards({
                     }
                   >
                     {pnl.totalRealizedPnL >= 0 ? "+" : ""}
-                    {formatNumber(pnl.totalRealizedPnL)} USD
+                    {formatNumber(pnl.totalRealizedPnL)} USDC
                   </span>
                 </p>
                 <p>
@@ -376,7 +376,7 @@ export default function StatsCards({
                     }
                   >
                     {pnl.totalUnrealizedPnL >= 0 ? "+" : ""}
-                    {formatNumber(pnl.totalUnrealizedPnL)} USD
+                    {formatNumber(pnl.totalUnrealizedPnL)} USDC
                   </span>
                 </p>
                 <p>
@@ -389,7 +389,7 @@ export default function StatsCards({
                     }
                   >
                     {pnl.totalNetPnL >= 0 ? "+" : ""}
-                    {formatNumber(pnl.totalNetPnL)} USD
+                    {formatNumber(pnl.totalNetPnL)} USDC
                   </span>
                 </p>
                 <p>Total Volume: {formatNumber(pnl.totalVolumeUSDC)} USDC</p>
