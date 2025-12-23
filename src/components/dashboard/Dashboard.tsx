@@ -33,7 +33,7 @@ export default function Dashboard() {
     totalRealizedPnL: number;
     totalUnrealizedPnL: number;
     totalNetPnL: number;
-    totalVolumeUSD: number;
+    totalVolumeUSDC: number;
     tradesCount: number;
     winningTrades: number;
     tokenBreakdown: Record<string, { realizedPnL: number; unrealizedPnL: number; openPositionQuantity: number; averageBuyPrice: number }>;

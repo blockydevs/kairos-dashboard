@@ -25,7 +25,7 @@ interface PnlData {
   totalRealizedPnL: number;
   totalUnrealizedPnL: number;
   totalNetPnL: number;
-  totalVolumeUSD: number;
+  totalVolumeUSDC: number;
   tradesCount: number;
   winningTrades: number;
   tokenBreakdown: Record<
@@ -392,7 +392,7 @@ export default function StatsCards({
                     {formatNumber(pnl.totalNetPnL)} USD
                   </span>
                 </p>
-                <p>Total Volume: {formatNumber(pnl.totalVolumeUSD)} USD</p>
+                <p>Total Volume: {formatNumber(pnl.totalVolumeUSDC)} USDC</p>
               </div>
               {Object.keys(pnl.tokenBreakdown).length > 0 && (
                 <div>
