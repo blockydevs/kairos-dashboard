@@ -78,9 +78,9 @@ export default function StatsCards({
     return isNaN(num)
       ? "0.00"
       : num.toLocaleString("en-US", {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-      });
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        });
   };
 
   const truncateAddress = (address: string) => {
@@ -121,7 +121,7 @@ export default function StatsCards({
               decimals: 4, // fallback
             };
           }
-        })
+        }),
       );
 
       setTokenInfo((prev) => ({ ...prev, ...newInfo }));
@@ -169,9 +169,9 @@ export default function StatsCards({
                 $
                 {typeof balance === "number"
                   ? balance.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
                   : balance}
               </span>
             )}
@@ -207,7 +207,9 @@ export default function StatsCards({
                   <CardDescription className="text-sm font-medium text-muted-foreground mb-1">
                     Compound Annual Growth Rate
                   </CardDescription>
-                  <CardTitle className="text-base font-semibold">CAGR</CardTitle>
+                  <CardTitle className="text-base font-semibold">
+                    CAGR
+                  </CardTitle>
                 </div>
                 <div
                   className={cn(
@@ -230,14 +232,16 @@ export default function StatsCards({
               >
                 {sign}
                 {typeof cagr === "number" ||
-                  (typeof cagr === "string" && !isNaN(parseFloat(String(cagr))))
+                (typeof cagr === "string" && !isNaN(parseFloat(String(cagr))))
                   ? (() => {
-                    const val =
-                      typeof cagr === "number" ? cagr : parseFloat(String(cagr));
-                    return Math.abs(val) > 1e6
-                      ? val.toExponential(2)
-                      : val.toFixed(2);
-                  })()
+                      const val =
+                        typeof cagr === "number"
+                          ? cagr
+                          : parseFloat(String(cagr));
+                      return Math.abs(val) > 1e6
+                        ? val.toExponential(2)
+                        : val.toFixed(2);
+                    })()
                   : cagr}
                 %{isLoading ? <Loader /> : null}
               </div>
@@ -286,8 +290,7 @@ export default function StatsCards({
                   {formatNumber(cagrDetails.totalWithdrawalsUSD)} USD
                 </p>
                 <p>
-                  Current Value: {formatNumber(cagrDetails.currentValueUSD)}{" "}
-                  USD
+                  Current Value: {formatNumber(cagrDetails.currentValueUSD)} USD
                 </p>
               </div>
             </div>
@@ -322,14 +325,15 @@ export default function StatsCards({
             <CardContent className="relative">
               <div className="text-4xl font-bold mb-2 tracking-tight text-blue-600 dark:text-blue-400 drop-shadow-lg">
                 {typeof hitRate === "number" ||
-                  (typeof hitRate === "string" && !isNaN(parseFloat(String(hitRate))))
+                (typeof hitRate === "string" &&
+                  !isNaN(parseFloat(String(hitRate))))
                   ? (() => {
-                    const val =
-                      typeof hitRate === "number"
-                        ? hitRate
-                        : parseFloat(String(hitRate));
-                    return val.toFixed(2);
-                  })()
+                      const val =
+                        typeof hitRate === "number"
+                          ? hitRate
+                          : parseFloat(String(hitRate));
+                      return val.toFixed(2);
+                    })()
                   : hitRate}
                 % {isLoading ? <Loader /> : null}
               </div>
@@ -383,9 +387,7 @@ export default function StatsCards({
                   Net PnL:{" "}
                   <span
                     className={
-                      pnl.totalNetPnL >= 0
-                        ? "text-green-500"
-                        : "text-red-500"
+                      pnl.totalNetPnL >= 0 ? "text-green-500" : "text-red-500"
                     }
                   >
                     {pnl.totalNetPnL >= 0 ? "+" : ""}
@@ -411,7 +413,9 @@ export default function StatsCards({
                         >
                           <div className="font-bold mb-1">{sym}</div>
                           <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                            <span className="text-muted-foreground">Realized:</span>
+                            <span className="text-muted-foreground">
+                              Realized:
+                            </span>
                             <span
                               className={
                                 data.realizedPnL >= 0
@@ -423,7 +427,9 @@ export default function StatsCards({
                               {formatNumber(data.realizedPnL)}
                             </span>
 
-                            <span className="text-muted-foreground">Unrealized:</span>
+                            <span className="text-muted-foreground">
+                              Unrealized:
+                            </span>
                             <span
                               className={
                                 data.unrealizedPnL >= 0

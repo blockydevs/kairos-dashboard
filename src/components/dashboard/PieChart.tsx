@@ -24,11 +24,29 @@ const renderLabel = (props: PieLabelRenderProps, tokens: PortfolioEntry[]) => {
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   const token = tokens.find((t) => t.name === name);
-  if (!token || !token.icon) return null;
+  if (!token) return null;
 
   return (
     <foreignObject x={x - 25} y={y - 10} width={40} height={40}>
-      <img src={token.icon} alt={`${token.name} icon`} className="size-10" />
+      {token.icon ? (
+        <img
+          src={token.icon}
+          alt={`${token.name} icon`}
+          className="size-10"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+            const placeholder = e.currentTarget.nextElementSibling;
+            if (placeholder)
+              (placeholder as HTMLElement).style.display = "flex";
+          }}
+        />
+      ) : null}
+      <div
+        className="size-10 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground"
+        style={{ display: token.icon ? "none" : "flex" }}
+      >
+        {token.name.charAt(0).toUpperCase()}
+      </div>
     </foreignObject>
   );
 };
@@ -140,11 +158,25 @@ export function Chart() {
               key={token.name}
               className="flex items-center gap-3 py-1.5 px-2 rounded-md hover:bg-muted/50 transition-colors"
             >
-              <img
-                src={token.icon}
-                alt={token.name}
-                className="size-5 shrink-0"
-              />
+              {token.icon ? (
+                <img
+                  src={token.icon}
+                  alt={token.name}
+                  className="size-5 shrink-0"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const placeholder = e.currentTarget.nextElementSibling;
+                    if (placeholder)
+                      (placeholder as HTMLElement).style.display = "flex";
+                  }}
+                />
+              ) : null}
+              <div
+                className="size-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground shrink-0"
+                style={{ display: token.icon ? "none" : "flex" }}
+              >
+                {token.name.charAt(0).toUpperCase()}
+              </div>
               <span className="flex-1 text-sm font-medium">{token.name}</span>
               <span className="text-sm font-semibold text-muted-foreground">
                 {totalValue > 0

@@ -36,7 +36,15 @@ export default function Dashboard() {
     totalVolumeUSDC: number;
     tradesCount: number;
     winningTrades: number;
-    tokenBreakdown: Record<string, { realizedPnL: number; unrealizedPnL: number; openPositionQuantity: number; averageBuyPrice: number }>;
+    tokenBreakdown: Record<
+      string,
+      {
+        realizedPnL: number;
+        unrealizedPnL: number;
+        openPositionQuantity: number;
+        averageBuyPrice: number;
+      }
+    >;
   } | null>(null);
   const [cagrDetails, setCagrDetails] = useState<{
     totalReturnPercent: string;

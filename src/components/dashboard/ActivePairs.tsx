@@ -8,7 +8,11 @@ import {
   solidityAddressToTokenIdString,
   type TokenData,
 } from "@/services/dex/saucerswapApi";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type TokenMeta = {
   id: string;
@@ -77,7 +81,10 @@ export function ActivePairs() {
           };
 
           const usdcId = process.env.NEXT_PUBLIC_USDC_TOKEN_ID;
-          if (usdcId && (tokenInMeta.id === usdcId || tokenOutMeta.id === usdcId)) {
+          if (
+            usdcId &&
+            (tokenInMeta.id === usdcId || tokenOutMeta.id === usdcId)
+          ) {
             if (tokenOutMeta.id === usdcId && tokenInMeta.id !== usdcId) {
               [tokenInMeta, tokenOutMeta] = [tokenOutMeta, tokenInMeta];
             }
@@ -173,10 +180,20 @@ export function ActivePairs() {
                   src={pair.tokenIn.icon}
                   alt={pair.tokenIn.symbol}
                   className="size-5 rounded-full"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const placeholder = e.currentTarget.nextElementSibling;
+                    if (placeholder)
+                      (placeholder as HTMLElement).style.display = "flex";
+                  }}
                 />
-              ) : (
-                <div className="size-5 rounded-full bg-muted" />
-              )}
+              ) : null}
+              <div
+                className="size-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground"
+                style={{ display: pair.tokenIn.icon ? "none" : "flex" }}
+              >
+                {pair.tokenIn.symbol.charAt(0).toUpperCase()}
+              </div>
               <span className="text-sm font-medium">{pair.tokenIn.symbol}</span>
 
               <span className="text-muted-foreground text-sm">/</span>
@@ -187,10 +204,20 @@ export function ActivePairs() {
                   src={pair.tokenOut.icon}
                   alt={pair.tokenOut.symbol}
                   className="size-5 rounded-full"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const placeholder = e.currentTarget.nextElementSibling;
+                    if (placeholder)
+                      (placeholder as HTMLElement).style.display = "flex";
+                  }}
                 />
-              ) : (
-                <div className="size-5 rounded-full bg-muted" />
-              )}
+              ) : null}
+              <div
+                className="size-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground"
+                style={{ display: pair.tokenOut.icon ? "none" : "flex" }}
+              >
+                {pair.tokenOut.symbol.charAt(0).toUpperCase()}
+              </div>
               <span className="text-sm font-medium">
                 {pair.tokenOut.symbol}
               </span>
@@ -207,7 +234,9 @@ export function ActivePairs() {
                   pnlStr = entry.pnl;
                   details = entry.details;
                 } else if (revEntry) {
-                  const raw = parseFloat((revEntry.pnl || "").replace(/%/g, ""));
+                  const raw = parseFloat(
+                    (revEntry.pnl || "").replace(/%/g, ""),
+                  );
                   if (!Number.isNaN(raw)) {
                     const flipped = -raw;
                     pnlStr = `${flipped > 0 ? "+" : ""}${flipped.toFixed(2)}%`;
@@ -221,7 +250,8 @@ export function ActivePairs() {
                           ? 1 / d.avgBuyPrice
                           : d.avgBuyPrice,
                       currentPrice:
-                        typeof d.currentPrice === "number" && d.currentPrice !== 0
+                        typeof d.currentPrice === "number" &&
+                        d.currentPrice !== 0
                           ? 1 / d.currentPrice
                           : d.currentPrice,
                     };
@@ -244,37 +274,56 @@ export function ActivePairs() {
                   <div className="space-y-1">
                     {typeof details.buyCount === "number" && (
                       <div>
-                        <span className="text-muted-foreground">buyCount:</span> {details.buyCount}
+                        <span className="text-muted-foreground">buyCount:</span>{" "}
+                        {details.buyCount}
                       </div>
                     )}
                     {details.firstBuyDate && (
                       <div>
-                        <span className="text-muted-foreground">firstBuyDate:</span> {new Date(details.firstBuyDate).toLocaleString()}
+                        <span className="text-muted-foreground">
+                          firstBuyDate:
+                        </span>{" "}
+                        {new Date(details.firstBuyDate).toLocaleString()}
                       </div>
                     )}
                     {details.lastBuyDate && (
                       <div>
-                        <span className="text-muted-foreground">lastBuyDate:</span> {new Date(details.lastBuyDate).toLocaleString()}
+                        <span className="text-muted-foreground">
+                          lastBuyDate:
+                        </span>{" "}
+                        {new Date(details.lastBuyDate).toLocaleString()}
                       </div>
                     )}
                     {typeof details.avgBuyPrice === "number" && (
                       <div>
-                        <span className="text-muted-foreground">avgBuyPrice:</span> {details.avgBuyPrice.toFixed(6)}
+                        <span className="text-muted-foreground">
+                          avgBuyPrice:
+                        </span>{" "}
+                        {details.avgBuyPrice.toFixed(6)}
                       </div>
                     )}
                     {typeof details.currentPrice === "number" && (
                       <div>
-                        <span className="text-muted-foreground">currentPrice:</span> {details.currentPrice.toFixed(6)}
+                        <span className="text-muted-foreground">
+                          currentPrice:
+                        </span>{" "}
+                        {details.currentPrice.toFixed(6)}
                       </div>
                     )}
                     {details.currentDate && (
                       <div>
-                        <span className="text-muted-foreground">currentDate:</span> {new Date(details.currentDate).toLocaleString()}
+                        <span className="text-muted-foreground">
+                          currentDate:
+                        </span>{" "}
+                        {new Date(details.currentDate).toLocaleString()}
                       </div>
                     )}
                     {typeof details.inventoryUnits === "number" && (
                       <div>
-                        <span className="text-muted-foreground">inventoryUnits:</span> {details.inventoryUnits}
+                        <span className="text-muted-foreground">
+                          inventoryUnits:
+                        </span>{" "}
+                        {details.inventoryUnits}
                       </div>
                     )}
                   </div>

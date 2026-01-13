@@ -238,7 +238,7 @@ export default function EventsTable({
                 Amount Out
               </TableHead>
               <TableHead className="text-center h-12 font-semibold">
-                HTK Received
+                DAO Token Received
               </TableHead>
               <TableHead className="text-center h-12 font-semibold">
                 Amount Burned

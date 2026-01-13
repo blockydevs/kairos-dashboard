@@ -277,16 +277,6 @@ export default function ProfitHistoryChart() {
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          {trend >= 0 ? "Trending up" : "Trending down"} by{" "}
-          {Math.abs(trend).toFixed(1)}% this period{" "}
-          <TrendingUp className={`h-4 w-4 ${trend < 0 ? "rotate-180" : ""}`} />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Showing profit history for the selected period
-        </div>
-      </CardFooter>
     </Card>
   );
 }

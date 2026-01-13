@@ -145,7 +145,9 @@ function TradingParameters() {
     process.env.NEXT_PUBLIC_HASHSCAN_URL?.replace(/\/+$/, "") ||
     "https://hashscan.io/mainnet";
   const operatorId = systemInfo?.HEDERA_OPERATOR_ID?.trim();
-  const operatorUrl = operatorId ? `${hashscanBase}/account/${operatorId}` : undefined;
+  const operatorUrl = operatorId
+    ? `${hashscanBase}/account/${operatorId}`
+    : undefined;
 
   return (
     <Card
