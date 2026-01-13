@@ -92,7 +92,6 @@ export default function Dashboard() {
         if (data.cagrDetails) setCagrDetails(data.cagrDetails);
       } catch (err) {
         console.error("Error fetching metrics:", err);
-        toast.error("Failed to fetch metrics", { id: "metrics-error" });
       }
     };
 
@@ -126,9 +125,6 @@ export default function Dashboard() {
         const message = e instanceof Error ? e.message : "Unknown error";
         setError(message);
         setLoading(false);
-        toast.error("Failed to fetch Mirror Node data", {
-          id: "mirror-node-error",
-        });
       }
     })();
 

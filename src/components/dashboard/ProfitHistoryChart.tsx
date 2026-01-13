@@ -63,7 +63,6 @@ export default function ProfitHistoryChart() {
       } catch (err) {
         console.error(err);
         setError(err instanceof Error ? err.message : "Unknown error");
-        toast.error("Failed to load profit history");
       } finally {
         setLoading(false);
       }

@@ -32,9 +32,6 @@ export async function getDetailedTokenDataById(
     return await res.json();
   } catch (e) {
     console.error("Error fetching token data:", e);
-    toast.error("Failed to fetch data from SaucerSwap API", {
-      id: "saucerswap-api-error",
-    });
   }
 }
 

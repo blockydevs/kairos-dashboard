@@ -35,9 +35,6 @@ export function subscribeToNewMessages(
     try {
       const raw = JSON.parse(evt.data);
       if (raw.error) {
-        toast.error(`Mirror Node error: ${raw.error}`, {
-          id: "mirror-node-sse-error",
-        });
         return;
       }
 
@@ -54,9 +51,6 @@ export function subscribeToNewMessages(
 
   es.onerror = () => {
     console.error("SSE connection error");
-    toast.error("Mirror Node connection error", {
-      id: "mirror-node-sse-error",
-    });
   };
 
   return {

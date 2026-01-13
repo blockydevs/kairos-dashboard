@@ -107,9 +107,9 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       const addressSet = new Set<string>();
 
       // Get WHBAR token ID for later use
-      const whbarTokenId = solidityAddressToTokenIdString(
-        WHBAR_ADDRESS_MAINNET,
-      );
+      const whbarTokenId =
+        process.env.NEXT_PUBLIC_WHBAR_TOKEN_ID ||
+        solidityAddressToTokenIdString(WHBAR_ADDRESS_MAINNET);
 
       // Iterate over all tokens from Mirror Node (actual Treasury holdings)
       const tokenIds = Object.keys(mirrorTokenBalances);
@@ -200,9 +200,9 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         return;
       }
 
-      const whbarTokenId = solidityAddressToTokenIdString(
-        WHBAR_ADDRESS_MAINNET,
-      );
+      const whbarTokenId =
+        process.env.NEXT_PUBLIC_WHBAR_TOKEN_ID ||
+        solidityAddressToTokenIdString(WHBAR_ADDRESS_MAINNET);
       const newBalances: Record<string, number> = {};
       let changed = false;
 
