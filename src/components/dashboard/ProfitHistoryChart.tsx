@@ -120,6 +120,12 @@ export default function ProfitHistoryChart() {
   };
 
   const formatYAxis = (value: number) => {
+    if (Math.abs(value) >= 1_000_000) {
+      return `$${(value / 1_000_000).toFixed(2)}M`;
+    }
+    if (Math.abs(value) >= 1_000) {
+      return `$${(value / 1_000).toFixed(1)}K`;
+    }
     return `$${value.toFixed(2)}`;
   };
 
@@ -163,7 +169,7 @@ export default function ProfitHistoryChart() {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle>Profit History</CardTitle>
+            <CardTitle>Portfolio Value History</CardTitle>
             <CardDescription>
               {data.length > 0
                 ? `${formatXAxis(data[0].timestamp)} - ${formatXAxis(data[data.length - 1].timestamp)}`
@@ -203,7 +209,7 @@ export default function ProfitHistoryChart() {
               <LineChart
                 data={data}
                 margin={{
-                  left: 12,
+                  left: 24,
                   right: 12,
                   top: 10,
                   bottom: 10,
@@ -248,7 +254,10 @@ export default function ProfitHistoryChart() {
                                 Value
                               </span>
                               <span className="font-bold">
-                                ${Number(payload[0].value).toFixed(2)}
+                                ${Number(payload[0].value).toLocaleString(undefined, {
+                                                              minimumFractionDigits: 2,
+                                                              maximumFractionDigits: 2,
+                                                            })}
                               </span>
                             </div>
                           </div>
