@@ -289,9 +289,9 @@ export default function StatsCards({
                   Total Withdrawals:{" "}
                   {formatNumber(cagrDetails.totalWithdrawalsUSD)} USD
                 </p>
-                <p>
-                  Current Value: {formatNumber(cagrDetails.currentValueUSD)} USD
-                </p>
+                {/*<p>*/}
+                {/*  Current Value: {formatNumber(cagrDetails.currentValueUSD)} USD*/}
+                {/*</p>*/}
               </div>
             </div>
           </TooltipContent>
@@ -343,131 +343,131 @@ export default function StatsCards({
             </CardContent>
           </Card>
         </TooltipTrigger>
-        {pnl && (
-          <TooltipContent
-            side="bottom"
-            className="max-w-xs p-4 bg-popover text-popover-foreground border border-border shadow-xl"
-          >
-            <div className="space-y-3 text-sm">
-              <div>
-                <p className="font-semibold text-foreground mb-1">
-                  Performance Details:
-                </p>
-                <p>
-                  Hit Rate: {pnl.winningTrades} wins out of {pnl.tradesCount}{" "}
-                  closed positions
-                </p>
-                <p>
-                  Realized PnL:{" "}
-                  <span
-                    className={
-                      pnl.totalRealizedPnL >= 0
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }
-                  >
-                    {pnl.totalRealizedPnL >= 0 ? "+" : ""}
-                    {formatNumber(pnl.totalRealizedPnL)} USDC
-                  </span>
-                </p>
-                <p>
-                  Unrealized PnL:{" "}
-                  <span
-                    className={
-                      pnl.totalUnrealizedPnL >= 0
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }
-                  >
-                    {pnl.totalUnrealizedPnL >= 0 ? "+" : ""}
-                    {formatNumber(pnl.totalUnrealizedPnL)} USDC
-                  </span>
-                </p>
-                <p>
-                  Net PnL:{" "}
-                  <span
-                    className={
-                      pnl.totalNetPnL >= 0 ? "text-green-500" : "text-red-500"
-                    }
-                  >
-                    {pnl.totalNetPnL >= 0 ? "+" : ""}
-                    {formatNumber(pnl.totalNetPnL)} USDC
-                  </span>
-                </p>
-                <p>Total Volume: {formatNumber(pnl.totalVolumeUSDC)} USDC</p>
-              </div>
-              {Object.keys(pnl.tokenBreakdown).length > 0 && (
-                <div>
-                  <p className="font-semibold text-foreground mb-1">
-                    Token Breakdown:
-                  </p>
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    {Object.entries(pnl.tokenBreakdown).map(([token, data]) => {
-                      const info = tokenInfo[token];
-                      const sym = info?.symbol || truncateAddress(token);
-                      const dec = info?.decimals ?? 4;
-                      return (
-                        <div
-                          key={token}
-                          className="text-xs bg-muted/30 p-2 rounded-md"
-                        >
-                          <div className="font-bold mb-1">{sym}</div>
-                          <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                            <span className="text-muted-foreground">
-                              Realized:
-                            </span>
-                            <span
-                              className={
-                                data.realizedPnL >= 0
-                                  ? "text-green-500 text-right"
-                                  : "text-red-500 text-right"
-                              }
-                            >
-                              {data.realizedPnL >= 0 ? "+" : ""}
-                              {formatNumber(data.realizedPnL)}
-                            </span>
+        {/*{pnl && (*/}
+        {/*  <TooltipContent*/}
+        {/*    side="bottom"*/}
+        {/*    className="max-w-xs p-4 bg-popover text-popover-foreground border border-border shadow-xl"*/}
+        {/*  >*/}
+        {/*    <div className="space-y-3 text-sm">*/}
+        {/*      <div>*/}
+        {/*        <p className="font-semibold text-foreground mb-1">*/}
+        {/*          Performance Details:*/}
+        {/*        </p>*/}
+        {/*        <p>*/}
+        {/*          Hit Rate: {pnl.winningTrades} wins out of {pnl.tradesCount}{" "}*/}
+        {/*          closed positions*/}
+        {/*        </p>*/}
+        {/*        <p>*/}
+        {/*          Realized PnL:{" "}*/}
+        {/*          <span*/}
+        {/*            className={*/}
+        {/*              pnl.totalRealizedPnL >= 0*/}
+        {/*                ? "text-green-500"*/}
+        {/*                : "text-red-500"*/}
+        {/*            }*/}
+        {/*          >*/}
+        {/*            {pnl.totalRealizedPnL >= 0 ? "+" : ""}*/}
+        {/*            {formatNumber(pnl.totalRealizedPnL)} USDC*/}
+        {/*          </span>*/}
+        {/*        </p>*/}
+        {/*        <p>*/}
+        {/*          Unrealized PnL:{" "}*/}
+        {/*          <span*/}
+        {/*            className={*/}
+        {/*              pnl.totalUnrealizedPnL >= 0*/}
+        {/*                ? "text-green-500"*/}
+        {/*                : "text-red-500"*/}
+        {/*            }*/}
+        {/*          >*/}
+        {/*            {pnl.totalUnrealizedPnL >= 0 ? "+" : ""}*/}
+        {/*            {formatNumber(pnl.totalUnrealizedPnL)} USDC*/}
+        {/*          </span>*/}
+        {/*        </p>*/}
+        {/*        <p>*/}
+        {/*          Net PnL:{" "}*/}
+        {/*          <span*/}
+        {/*            className={*/}
+        {/*              pnl.totalNetPnL >= 0 ? "text-green-500" : "text-red-500"*/}
+        {/*            }*/}
+        {/*          >*/}
+        {/*            {pnl.totalNetPnL >= 0 ? "+" : ""}*/}
+        {/*            {formatNumber(pnl.totalNetPnL)} USDC*/}
+        {/*          </span>*/}
+        {/*        </p>*/}
+        {/*        <p>Total Volume: {formatNumber(pnl.totalVolumeUSDC)} USDC</p>*/}
+        {/*      </div>*/}
+        {/*      {Object.keys(pnl.tokenBreakdown).length > 0 && (*/}
+        {/*        <div>*/}
+        {/*          <p className="font-semibold text-foreground mb-1">*/}
+        {/*            Token Breakdown:*/}
+        {/*          </p>*/}
+        {/*          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">*/}
+        {/*            {Object.entries(pnl.tokenBreakdown).map(([token, data]) => {*/}
+        {/*              const info = tokenInfo[token];*/}
+        {/*              const sym = info?.symbol || truncateAddress(token);*/}
+        {/*              const dec = info?.decimals ?? 4;*/}
+        {/*              return (*/}
+        {/*                <div*/}
+        {/*                  key={token}*/}
+        {/*                  className="text-xs bg-muted/30 p-2 rounded-md"*/}
+        {/*                >*/}
+        {/*                  <div className="font-bold mb-1">{sym}</div>*/}
+        {/*                  <div className="grid grid-cols-2 gap-x-2 gap-y-1">*/}
+        {/*                    <span className="text-muted-foreground">*/}
+        {/*                      Realized:*/}
+        {/*                    </span>*/}
+        {/*                    <span*/}
+        {/*                      className={*/}
+        {/*                        data.realizedPnL >= 0*/}
+        {/*                          ? "text-green-500 text-right"*/}
+        {/*                          : "text-red-500 text-right"*/}
+        {/*                      }*/}
+        {/*                    >*/}
+        {/*                      {data.realizedPnL >= 0 ? "+" : ""}*/}
+        {/*                      {formatNumber(data.realizedPnL)}*/}
+        {/*                    </span>*/}
 
-                            <span className="text-muted-foreground">
-                              Unrealized:
-                            </span>
-                            <span
-                              className={
-                                data.unrealizedPnL >= 0
-                                  ? "text-green-500 text-right"
-                                  : "text-red-500 text-right"
-                              }
-                            >
-                              {data.unrealizedPnL >= 0 ? "+" : ""}
-                              {formatNumber(data.unrealizedPnL)}
-                            </span>
+        {/*                    <span className="text-muted-foreground">*/}
+        {/*                      Unrealized:*/}
+        {/*                    </span>*/}
+        {/*                    <span*/}
+        {/*                      className={*/}
+        {/*                        data.unrealizedPnL >= 0*/}
+        {/*                          ? "text-green-500 text-right"*/}
+        {/*                          : "text-red-500 text-right"*/}
+        {/*                      }*/}
+        {/*                    >*/}
+        {/*                      {data.unrealizedPnL >= 0 ? "+" : ""}*/}
+        {/*                      {formatNumber(data.unrealizedPnL)}*/}
+        {/*                    </span>*/}
 
-                            <span className="text-muted-foreground">Qty:</span>
-                            <span className="text-right">
-                              {data.openPositionQuantity.toLocaleString(
-                                "en-US",
-                                {
-                                  minimumFractionDigits: dec,
-                                  maximumFractionDigits: dec,
-                                },
-                              )}
-                            </span>
+        {/*                    <span className="text-muted-foreground">Qty:</span>*/}
+        {/*                    <span className="text-right">*/}
+        {/*                      {data.openPositionQuantity.toLocaleString(*/}
+        {/*                        "en-US",*/}
+        {/*                        {*/}
+        {/*                          minimumFractionDigits: dec,*/}
+        {/*                          maximumFractionDigits: dec,*/}
+        {/*                        },*/}
+        {/*                      )}*/}
+        {/*                    </span>*/}
 
-                            <span className="text-muted-foreground">
-                              Avg Buy:
-                            </span>
-                            <span className="text-right">
-                              {formatNumber(data.averageBuyPrice, 4)}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          </TooltipContent>
-        )}
+        {/*                    <span className="text-muted-foreground">*/}
+        {/*                      Avg Buy:*/}
+        {/*                    </span>*/}
+        {/*                    <span className="text-right">*/}
+        {/*                      {formatNumber(data.averageBuyPrice, 4)}*/}
+        {/*                    </span>*/}
+        {/*                  </div>*/}
+        {/*                </div>*/}
+        {/*              );*/}
+        {/*            })}*/}
+        {/*          </div>*/}
+        {/*        </div>*/}
+        {/*      )}*/}
+        {/*    </div>*/}
+        {/*  </TooltipContent>*/}
+        {/*)}*/}
       </Tooltip>
     </div>
   );
