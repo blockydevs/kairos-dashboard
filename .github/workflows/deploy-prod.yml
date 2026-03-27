@@ -10,7 +10,7 @@ on:
         default: false
   push:
     branches:
-      - develop
+      - prod
 
 jobs:
   build:
@@ -21,23 +21,23 @@ jobs:
 
       - name: Check variables
         run: |
-          if [ -z "${{ secrets.ENV_FILE }}" ]; then
+          if [ -z "${{ secrets.ENV_FILE_PROD }}" ]; then
             echo "ERROR: Variables not defined!"
             exit 1
           fi
 
       - name: Create docker build args
         if: inputs.only_env == false
-        run: echo "${{ secrets.ENV_FILE }}" > .env
+        run: echo "${{ secrets.ENV_FILE_PROD }}" > .env
 
       - name: Build Docker image
         if: inputs.only_env == false
-        run: docker build -t huffy-dashboard:latest -f Dockerfile .
+        run: docker build -t kairosdao-dashboard:latest -f Dockerfile .
 
       - name: Update .env
-        working-directory: /opt/huffy
-        run: echo "${{ secrets.ENV_FILE }}" > .env.dashboard
+        working-directory: /opt/kairosdao
+        run: echo "${{ secrets.ENV_FILE_PROD }}" > .env.dashboard
 
       - name: Run Docker image
-        working-directory: /opt/huffy
+        working-directory: /opt/kairosdao
         run: docker compose up -d dashboard
