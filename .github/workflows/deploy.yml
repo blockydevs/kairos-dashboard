@@ -19,6 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check variables
+        run: |
+          if [ -z "${{ secrets.ENV_FILE }}" ]; then
+            echo "ERROR: Variables not defined!"
+            exit 1
+          fi
+
       - name: Create docker build args
         if: inputs.only_env == false
         run: echo "${{ secrets.ENV_FILE }}" > .env
